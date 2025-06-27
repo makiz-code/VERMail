@@ -20,4 +20,4 @@ frontend/.env.production.local
 frontend/.env
 
 # models
-backend/data/models/*.pth
+backend/data/models/VERModel.pth
