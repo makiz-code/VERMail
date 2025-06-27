@@ -1,23 +1,23 @@
 # dependencies
-/frontend/node_modules/
-/frontend/.pnp
-/frontend/.pnp.js
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
 
 # testing
-/frontend/coverage/
+frontend/coverage/
 
 # production
-/frontend/build/
+frontend/build/
 
 # misc
 .DS_Store
-/frontend/.env.local
-/frontend/.env.development.local
-/frontend/.env.test.local
-/frontend/.env.production.local
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
 
 # secrets
-/frontend/.env
+frontend/.env
 
 # models
-/backend/data/models/*
+backend/data/models/*.pth
