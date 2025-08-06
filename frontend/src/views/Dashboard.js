@@ -23,8 +23,10 @@ function getEmailCounts(emails) {
     incomplete: 0,
     untreated: 0,
   };
+
   emails.forEach((email) => {
-    switch (email.state.category) {
+    const category = email?.state?.category;
+    switch (category) {
       case "Treated":
         treated++;
         break;
@@ -38,6 +40,7 @@ function getEmailCounts(emails) {
         break;
     }
   });
+
   return { treated, incomplete, untreated };
 }
 const calculateEmails = (emails, hasIntentions, isValidated) => {
@@ -159,29 +162,40 @@ function Dashboard() {
   }, [emails]);
 
   useEffect(() => {
-    if (data) {
-      let filteredData = data;
-      if (datetimeFilter) {
-        filteredData = filteredData.filter(
-          (row) => new Date(row.datetime) > new Date(datetimeFilter)
-        );
-      }
-      filteredData = filteredData.filter((row) =>
-        selectedCategories.includes(row.state.category)
-      );
+    if (data && Array.isArray(data)) {
+      let filteredData = [...data];
 
+      // Filter by datetime
+      if (datetimeFilter) {
+        const filterDate = new Date(datetimeFilter);
+        filteredData = filteredData.filter((row) => {
+          const rowDate = new Date(row?.datetime);
+          return !isNaN(rowDate) && rowDate > filterDate;
+        });
+      }
+
+      // Filter by selected categories
+      filteredData = filteredData.filter((row) => {
+        const category = row?.state?.category;
+        return category && selectedCategories.includes(category);
+      });
+
+      // Filter by search keyword
       if (searchFilter) {
-        filteredData = filteredData.filter(
-          (row) =>
-            row.from.toLowerCase().includes(searchFilter.toLowerCase()) ||
-            row.to?.[0].toLowerCase().includes(searchFilter.toLowerCase()) ||
-            row.subject.toLowerCase().includes(searchFilter.toLowerCase()) ||
-            row.body.toLowerCase().includes(searchFilter.toLowerCase()) ||
-            row.repository.toLowerCase().includes(searchFilter.toLowerCase())
-        );
+        const keyword = searchFilter.toLowerCase();
+        filteredData = filteredData.filter((row) => {
+          return (
+            row?.from?.toLowerCase()?.includes(keyword) ||
+            row?.to?.[0]?.toLowerCase()?.includes(keyword) ||
+            row?.subject?.toLowerCase()?.includes(keyword) ||
+            row?.body?.toLowerCase()?.includes(keyword) ||
+            row?.repository?.toLowerCase()?.includes(keyword)
+          );
+        });
       }
 
       setCurrentRows(filteredData);
+
       if (filtersChanged) {
         setCurrentPage(1);
         setFiltersChanged(false);
