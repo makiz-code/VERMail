@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaCheck } from "react-icons/fa";
 
-const CheckCard = ({ current, subject, body, options, onNext, onSkip }) => {
+const Card = ({ current, subject, body, options, onNext, onSkip }) => {
   const [selectedValues, setSelectedValues] = useState([]);
 
   const handleButtonClick = (value) => {
@@ -57,4 +57,4 @@ const CheckCard = ({ current, subject, body, options, onNext, onSkip }) => {
   );
 };
 
-export default CheckCard;
+export default Card;

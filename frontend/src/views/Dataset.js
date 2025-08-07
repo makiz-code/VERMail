@@ -17,7 +17,7 @@ import ChartistGraph from "react-chartist";
 import NotificationAlert from "react-notification-alert";
 import Spinner from "../components/Spinner";
 import Modal from "../components/Modal";
-import CheckCard from "../components/CheckCard";
+import Card from "../components/Card";
 import { FaArrowAltCircleRight, FaTimes } from "react-icons/fa";
 import { verticalBarEventHandlers } from "../utils/EventHandlers";
 import { verticalBarOptions } from "../utils/ChartOptions";
@@ -549,7 +549,7 @@ const Dataset = () => {
             if (index === currentCardIndex) {
               return (
                 <div>
-                  <CheckCard
+                  <Card
                     key={index}
                     current={`${
                       jsonData?.filter((row) => row.topic === null).length
