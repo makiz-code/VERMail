@@ -27,6 +27,7 @@ dependencies:
   - catalogue=2.0.10=py39hcbf5309_0
   - certifi=2024.2.2=py39haa95532_0
   - cffi=1.16.0=py39ha55989b_0
+  - click=8.1.7=py39haa95532_0
   - cloudpathlib=0.16.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
   - comm=0.2.1=pyhd8ed1ab_0
@@ -57,13 +58,7 @@ dependencies:
   - fqdn=1.5.1=pyhd8ed1ab_0
   - freetype=2.12.1=ha860e81_0
   - gmpy2=2.1.2=py39h7f96b67_0
-  - h11=0.14.0=pyhd8ed1ab_0
-  - h2=4.1.0=pyhd8ed1ab_0
   - hdf5=1.12.1=h51c971a_3
-  - hpack=4.0.0=pyh9f0ad1d_0
-  - httpcore=1.0.2=pyhd8ed1ab_0
-  - httpx=0.26.0=pyhd8ed1ab_0
-  - hyperframe=6.0.1=pyhd8ed1ab_0
   - icc_rt=2022.1.0=h6049295_2
   - icu=73.2=h63175ca_0
   - importlib-metadata=7.0.1=pyha770c72_0
@@ -251,14 +246,16 @@ dependencies:
       - accelerate==0.27.2
       - aiohttp==3.9.3
       - aiosignal==1.3.1
+      - altgraph==0.17.4
       - astunparse==1.6.3
       - async-timeout==4.0.3
       - bert-extractive-summarizer==0.10.1
+      - blinker==1.7.0
       - blis==0.7.11
+      - bson==0.5.10
       - cachetools==5.3.2
-      - chardet==5.2.0
+      - chardet==3.0.4
       - charset-normalizer==3.3.2
-      - click==7.1.2
       - colorclass==2.2.2
       - compressed-rtf==1.0.6
       - comtypes==1.3.1
@@ -267,15 +264,21 @@ dependencies:
       - dateparser==1.2.0
       - dill==0.3.8
       - distro==1.9.0
+      - dnspython==2.6.1
       - docx2pdf==0.1.8
       - easygui==0.98.3
       - ebcdic==1.1.1
+      - email-validator==2.1.1
       - en-core-web-lg==3.7.1
       - en-core-web-md==3.7.1
       - en-core-web-sm==3.7.1
       - et-xmlfile==1.1.0
       - extract-msg==0.47.0
+      - flask==3.0.3
+      - flask-cors==4.0.0
+      - flask-pymongo==2.3.0
       - flatbuffers==23.5.26
+      - fr-core-news-sm==3.7.0
       - frozenlist==1.4.1
       - fsspec==2024.2.0
       - ftfy==5.9
@@ -285,13 +288,22 @@ dependencies:
       - google-auth==2.27.0
       - google-auth-oauthlib==0.4.6
       - google-pasta==0.2.0
+      - googletrans==3.0.0
       - gpt-2-simple==0.8.1
       - grpcio==1.60.1
+      - h11==0.9.0
+      - h2==3.2.0
       - h5py==3.10.0
+      - hpack==3.0.0
+      - hstspreload==2024.5.1
+      - httpcore==0.9.1
+      - httpx==0.13.3
       - huggingface-hub==0.21.4
-      - idna==3.6
+      - hyperframe==5.2.0
+      - idna==2.10
       - import-ipynb==0.1.4
       - ipywidgets==8.1.2
+      - itsdangerous==2.2.0
       - jpype1==1.5.0
       - jupyter==1.0.0
       - jupyter-console==6.6.3
@@ -326,7 +338,8 @@ dependencies:
       - pdf2image==1.17.0
       - pdfminer-six==20221105
       - pdfplumber==0.10.4
-      - pip==24.0
+      - pefile==2023.2.7
+      - pip==24.1
       - plumbum==1.8.2
       - ply==3.11
       - pptxtopdf==0.0.2
@@ -336,6 +349,10 @@ dependencies:
       - pyasn1==0.5.1
       - pyasn1-modules==0.3.0
       - pydantic==1.8.2
+      - pyinstaller==6.8.0
+      - pyinstaller-hooks-contrib==2024.7
+      - pyjwt==2.8.0
+      - pymongo==4.7.3
       - pymupdf==1.23.24
       - pymupdfb==1.23.22
       - pyparsing==2.4.7
@@ -345,10 +362,13 @@ dependencies:
       - python-dateutil==2.9.0.post0
       - python-docx==1.1.0
       - python-pptx==0.6.23
+      - pywin32-ctypes==0.2.2
       - qtconsole==5.5.1
       - qtpy==2.4.1
       - red-black-tree-mod==1.20
+      - reportlab==4.1.0
       - requests-oauthlib==1.3.1
+      - rfc3986==1.5.0
       - rsa==4.9
       - rtfde==0.1.1
       - sacremoses==0.1.1
@@ -356,6 +376,7 @@ dependencies:
       - scikeras==0.12.0
       - scikit-learn==1.4.1.post1
       - sentence-transformers==2.5.1
+      - sentencepiece==0.2.0
       - seqeval==1.2.2
       - setuptools==69.2.0
       - smart-open==6.4.0
@@ -367,7 +388,6 @@ dependencies:
       - tensorboard-plugin-wit==1.8.1
       - tensorflow==2.10.0
       - tensorflow-estimator==2.10.0
-      - tensorflow-gpu==2.10.0
       - tensorflow-io-gcs-filesystem==0.31.0
       - termcolor==2.4.0
       - thinc==8.2.3
@@ -375,12 +395,13 @@ dependencies:
       - toposort==1.10
       - torchaudio==2.2.0
       - torchvision==0.17.0
-      - transformers==4.39.0
-      - typer==0.3.2
+      - transformers==4.39.1
+      - typer==0.9.1
       - typing-extensions==4.10.0
       - tzlocal==5.2
       - unoconv==0.9.0
       - urllib3==2.2.1
+      - validators==0.28.1
       - wasabi==0.10.1
       - werkzeug==3.0.1
       - widgetsnbextension==4.0.10

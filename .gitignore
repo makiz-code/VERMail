@@ -1,8 +1,7 @@
-**/__pycache__/
+__pycache__/
 
 # dependencies
 frontend/node_modules/
-frontend/.env
 
 # models
 backend/data/models/VERModel.pth
