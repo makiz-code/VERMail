@@ -63,8 +63,10 @@ export const horizontalBarEventHandlers = {
 export const stackedBarEventHandlers = {
   draw: function (data) {
     if (data.type === "bar") {
+      const sliceIndex = data.index;
+      const color = ["#268dd6ff", "#ff4444"][sliceIndex];
       data.element.attr({
-        style: `stroke-width: 30px;`,
+        style: `stroke-width: 30px; stroke: ${color}`,
       });
     }
   },

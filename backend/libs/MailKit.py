@@ -106,13 +106,23 @@ def set_file_with_payload(path, base64_payload):
     with open(path, 'wb') as file:
         file.write(payload)
 
+def convert_datetimes(obj):
+    if isinstance(obj, dict):
+        return {k: convert_datetimes(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_datetimes(i) for i in obj]
+    elif isinstance(obj, datetime):
+        return obj.strftime("%m/%d/%Y %H:%M:%S")
+    else:
+        return obj
+
 def extract_email_data(msg):
     try:
         subject = msg["Subject"]
         sender = email.utils.parseaddr(msg["From"])[1]
         to_recipients = [email.utils.parseaddr(addr)[1] for addr in msg.get_all('To', [])]
         cc_recipients = [email.utils.parseaddr(addr)[1] for addr in msg.get_all('Cc', [])]
-        
+
         date_str = msg.get('Date', '')
         if date_str:
             date_obj = email.utils.parsedate_to_datetime(date_str)
@@ -121,7 +131,7 @@ def extract_email_data(msg):
             datetime_combined = ''
 
         body, attachments = extract_body_and_attachments(msg)
-        
+
         email_dict = {
             "subject": clean_mail(subject),
             "from": sender.replace('"', ''),
@@ -131,8 +141,11 @@ def extract_email_data(msg):
             "body": clean_mail(body),
             "attachments": attachments
         }
+
+        email_dict = convert_datetimes(email_dict)
+
         return email_dict
-        
+
     except Exception as e:
         raise Exception(f"Error parsing email data: {str(e)}")
 
