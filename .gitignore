@@ -2,7 +2,7 @@ __pycache__/
 
 # dependencies
 frontend/node_modules/
-backend/data/uploads/*
+backend/data/uploads/
 
 # models
 backend/data/models/VERModel.pth
