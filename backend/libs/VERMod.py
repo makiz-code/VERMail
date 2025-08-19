@@ -8,8 +8,8 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 model_path = "backend/data/models/VERModel.pth"
-metrics_path = "backend/data/models/metrics.pth"
-labels_path = "backend/data/models/labels.pth"
+metrics_path = "backend/data/models/metrics.json"
+labels_path = "backend/data/models/labels.json"
 
 
 
@@ -149,7 +149,8 @@ def train_model(model, train_loader, val_loader, optimizer, criterion, num_epoch
         if val_metrics['loss'] < best_metrics['loss']:
             best_metrics = val_metrics
             torch.save(model.state_dict(), model_path)
-            torch.save(best_metrics, metrics_path)
+            with open(metrics_path, "w") as f:
+                json.dump(best_metrics, f)
 
     return best_metrics
 
@@ -163,7 +164,8 @@ def training_process(json_data, num_epochs=3, batch_size=16, max_len=128, learni
 
     # Load previous model if labels match
     if os.path.exists(labels_path):
-        old_labels = torch.load(labels_path)
+        with open(labels_path, "r") as f:
+            old_labels = json.load(f)
         if old_labels == topics_map and os.path.exists(model_path):
             model.load_state_dict(torch.load(model_path))
 
@@ -184,7 +186,9 @@ def training_process(json_data, num_epochs=3, batch_size=16, max_len=128, learni
     best_metrics = train_model(model, train_loader, val_loader, optimizer, criterion, num_epochs, device)
 
     # Save labels
-    torch.save(topics_map, labels_path)
+    with open(labels_path, "w") as f:
+        json.dump(topics_map, f)
+
     return best_metrics
 
 
@@ -204,5 +208,6 @@ def reset_model(directory):
 
 def get_metrics():
     if os.path.exists(metrics_path):
-        return torch.load(metrics_path)
+        with open(metrics_path, "r") as f:
+            return json.load(f)
     return None

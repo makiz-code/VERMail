@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useHistory } from "react-router-dom";
 import { logoutAsync } from "../redux/login/actions";
+import logoImageSM from "../assets/img/logoSmVERMail.png";
 
 function Navmenu({ routes }) {
   const location = useLocation();
@@ -43,10 +44,10 @@ function Navmenu({ routes }) {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <div className="container-fluid">
-        <div className="d-flex justify-content-center align-items-center ml-2 ml-lg-0">
+      <div className="container-fluid d-flex justify-content-between align-items-center position-relative">
+        <div className="d-flex align-items-center">
           <button
-            className="btn btn-dark d-lg-none btn-fill d-flex justify-content-center align-items-center p-2"
+            className="btn btn-dark d-lg-none btn-fill p-2 d-flex justify-content-center align-items-center"
             onClick={mobileSidebarToggle}
           >
             <i className="fas fa-ellipsis-v"></i>
@@ -54,97 +55,28 @@ function Navmenu({ routes }) {
           <a
             href="#home"
             onClick={(e) => e.preventDefault()}
-            className="navbar-brand mr-2"
+            className="navbar-brand"
           >
             {getBrandText()}
           </a>
         </div>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav mr-auto">
-            <li className="nav-item">
-              <a
-                className="nav-link m-0"
-                href="#"
-                onClick={(e) => e.preventDefault()}
-              >
-                <i className="nc-icon nc-zoom-split mr-2"></i>
-                <span className="d-lg-block">Search</span>
-              </a>
-            </li>
-          </ul>
-          <ul className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <a
-                className="nav-link m-0"
-                href="#"
-                onClick={(e) => e.preventDefault()}
-              >
-                <span className="no-icon">Account</span>
-              </a>
-            </li>
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle m-0"
-                href="#"
-                id="navbarDropdownMenuLink"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <span className="no-icon">Links</span>
-              </a>
-              <div
-                className="dropdown-menu"
-                aria-labelledby="navbarDropdownMenuLink"
-              >
-                <a
-                  className="dropdown-item"
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Home
-                </a>
-                <a
-                  className="dropdown-item"
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Company
-                </a>
-                <a
-                  className="dropdown-item"
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Portfolio
-                </a>
-                <a
-                  className="dropdown-item"
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Blog
-                </a>
-              </div>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link m-0" href="#" onClick={handleLogout}>
-                <span className="no-icon">Log out</span>
-              </a>
-            </li>
-          </ul>
+        <div className="position-absolute top-50 start-50 translate-middle d-flex align-items-center">
+          <img
+            src={logoImageSM}
+            alt="VERMail Logo"
+            className="img-fluid"
+            style={{ maxHeight: "30px" }}
+          />
+        </div>
+        <div className="d-flex align-items-center">
+          <a
+            className="navbar-brand"
+            href="#"
+            onClick={handleLogout}
+          >
+            <i className="fas fa-sign-out-alt me-2"></i>
+            <span className="no-icon">Logout</span>
+          </a>
         </div>
       </div>
     </nav>

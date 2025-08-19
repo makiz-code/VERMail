@@ -147,4 +147,3 @@ def downloadFile():
                 'msg': f"Failed to download file <b data-time='{get_time()}'>{filename}</b>: {str(e)}"
             }
         })
-  

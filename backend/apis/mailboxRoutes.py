@@ -135,5 +135,4 @@ def deleteMailbox(id):
                 'type': "warning",
                 'msg': f"Unable to delete mailbox: id <b data-time='{get_time()}'>{id}</b> not found", 
             }
-         })
-    
+        })

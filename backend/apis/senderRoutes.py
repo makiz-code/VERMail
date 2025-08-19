@@ -147,4 +147,3 @@ def deleteSender(id):
                 'msg': f"Unable to delete sender: id <b data-time='{get_time()}'>{id}</b> not found", 
             }
         })
-    

@@ -3,8 +3,6 @@
 # dependencies
 frontend/node_modules/
 backend/data/uploads/*
-!backend/data/uploads/.gitkeep
 
 # models
-backend/data/models/VERModel.pth
-backend/data/models/metrics.pth
+backend/data/models/*

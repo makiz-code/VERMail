@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaCheck } from "react-icons/fa";
 
 const Card = ({ current, subject, body, options, onNext, onSkip }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   parseEmailsAsync,
@@ -15,7 +15,7 @@ import {
 } from "../utils/EventHandlers";
 import { pieChartOptions, stackedBarOptions } from "../utils/ChartOptions";
 
-const rowsPerPage = 7;
+const rowsPerPage = 10;
 
 function getEmailCounts(emails) {
   let { treated, incomplete, untreated } = {

@@ -132,5 +132,4 @@ def deleteAccount(id):
                 'type': "warning",
                 'msg': f"Unable to delete account: id <b data-time='{get_time()}'>{id}</b> not found", 
             }
-         })
-    
+        })

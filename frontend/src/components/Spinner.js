@@ -1,5 +1,3 @@
-import React from "react";
-
 const Spinner = ({ msg }) => {
   return (
     <div className="row justify-content-center mt-3">

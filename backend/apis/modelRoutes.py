@@ -82,7 +82,7 @@ def trainModel():
                 'msg': f"Failed to train model: <b data-time='{get_time()}'></b>{str(e)}",
             }
         })
-  
+
 @model_bp.route("/", methods=["GET"])
 def getMetrics():
     from libs.VERMod import get_metrics
@@ -117,4 +117,3 @@ def resetModel():
                 'msg': f"Unable to reset model: <b data-time='{get_time()}'></b>No model were found",
             },
         })
-    

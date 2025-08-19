@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 
 class Footer extends Component {
   render() {
@@ -8,32 +8,57 @@ class Footer extends Component {
           <nav>
             <ul className="footer-menu">
               <li>
-                <a href="#" onClick={(e) => e.preventDefault()}>
-                  Home
+                <a
+                  href="https://www.vermeg.com/solutions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-decoration-none"
+                >
+                  Solutions
                 </a>
               </li>
               <li>
-                <a href="#" onClick={(e) => e.preventDefault()}>
-                  Company
+                <a
+                  href="https://www.vermeg.com/about-us"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-decoration-none"
+                >
+                  About Us
                 </a>
               </li>
               <li>
-                <a href="#" onClick={(e) => e.preventDefault()}>
-                  Portfolio
+                <a
+                  href="https://www.vermeg.com/careers"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-decoration-none"
+                >
+                  Careers
                 </a>
               </li>
               <li>
-                <a href="#" onClick={(e) => e.preventDefault()}>
-                  Blog
+                <a
+                  href="https://www.vermeg.com/contact-us"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-decoration-none"
+                >
+                  Contact Us
                 </a>
               </li>
             </ul>
-            <p className="copyright text-center">
+
+            <p className="copyright text-center pr-0">
               © {new Date().getFullYear()}{" "}
-              <a href="http://www.vermeg.com" target="_blank">
-                VERMail
+              <a
+                href="http://www.vermeg.com"
+                target="_blank"
+                className="text-primary text-decoration-none fw-normal"
+              >
+                VERMEG
               </a>
-              , Everything is connected
+              , for Financial Software Solutions
             </p>
           </nav>
         </div>

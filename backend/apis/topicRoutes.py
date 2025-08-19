@@ -144,4 +144,3 @@ def deleteTopic(id):
                 'msg': f"Unable to delete topic: id <b data-time='{get_time()}'>{id}</b> not found", 
             }
         })
-    
