@@ -1,9 +1,17 @@
-from config.blibs import *
+from flask import Blueprint, request, jsonify
+from bson import ObjectId
+from config.mongo import get_db
+from config.utils import get_time
+from models.mailboxModel import Mailbox
+from config.access import role_required
+from flask_jwt_extended import jwt_required
 
 mailbox_bp = Blueprint('mailbox_bp', __name__)
 db = get_db()
 
 @mailbox_bp.route('/', methods=['POST'])
+@jwt_required()
+@role_required('TechAdmin')
 def addMailbox():
     try:
         mailbox_data = request.json
@@ -41,6 +49,8 @@ def addMailbox():
         })
     
 @mailbox_bp.route('/', methods=['GET'])
+@jwt_required()
+@role_required('TechAdmin')
 def getMailboxes():
     mailboxes = []
     for mailbox in db.mailboxes.find():
@@ -51,6 +61,8 @@ def getMailboxes():
     })
 
 @mailbox_bp.route('/<id>', methods=['GET'])
+@jwt_required()
+@role_required('TechAdmin')
 def getMailbox(id):
     mailbox = db.mailboxes.find_one({'_id': ObjectId(id)})
     if mailbox:
@@ -67,6 +79,8 @@ def getMailbox(id):
         })
     
 @mailbox_bp.route('/<id>', methods=['PUT'])
+@jwt_required()
+@role_required('TechAdmin')
 def updateMailbox(id):
     try:
         mailbox_data = request.json
@@ -116,6 +130,8 @@ def updateMailbox(id):
         })
         
 @mailbox_bp.route('/<id>', methods=['DELETE'])
+@jwt_required()
+@role_required('TechAdmin')
 def deleteMailbox(id):
     mailbox = db.mailboxes.find_one({'_id': ObjectId(id)})
     if mailbox:

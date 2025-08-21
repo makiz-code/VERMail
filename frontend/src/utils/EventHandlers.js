@@ -1,15 +1,4 @@
-const pieChartColors = [
-  "#00C851",
-  "#ffbb33",
-  "#ff4444",
-  "#9467bd",
-  "#8c564b",
-  "#e377c2",
-  "#7f7f7f",
-  "#bcbd22",
-  "#17becf",
-  "#aec7e8",
-];
+const pieChartColors = ["#00C851", "#ffbb33", "#ff4444"];
 
 const barChartColors = [
   "#ff9896",
@@ -64,7 +53,7 @@ export const stackedBarEventHandlers = {
   draw: function (data) {
     if (data.type === "bar") {
       const sliceIndex = data.index;
-      const color = ["#268dd6ff", "#ff4444"][sliceIndex];
+      const color = pieChartColors.filter((_, i) => i !== 1)[sliceIndex];
       data.element.attr({
         style: `stroke-width: 30px; stroke: ${color}`,
       });

@@ -11,17 +11,28 @@ import {
 
 const API = "/dataset";
 
-const options = {
+const apiClient = axios.create({
+  baseURL: API,
   headers: {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
   },
-};
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = JSON.parse(localStorage.getItem("token"));
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 export const uploadFileAsync = (Dataset) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}`, Dataset, options);
+    const resp = await apiClient.post("/", Dataset, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     dispatch(uploadFile(resp.data));
-    dispatch(getFilesAsync());
+    await dispatch(getFilesAsync());
   } catch (err) {
     console.log(err);
   }
@@ -29,9 +40,11 @@ export const uploadFileAsync = (Dataset) => async (dispatch) => {
 
 export const uploadFilesAsync = (Dataset) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}/files`, Dataset, options);
+    const resp = await apiClient.post("/files", Dataset, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     dispatch(uploadFiles(resp.data));
-    dispatch(getFilesAsync());
+    await dispatch(getFilesAsync());
   } catch (err) {
     console.log(err);
   }
@@ -39,7 +52,7 @@ export const uploadFilesAsync = (Dataset) => async (dispatch) => {
 
 export const getFilesAsync = () => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}`);
+    const resp = await apiClient.get("/");
     dispatch(getFiles(resp.data));
   } catch (err) {
     console.log(err);
@@ -48,9 +61,9 @@ export const getFilesAsync = () => async (dispatch) => {
 
 export const deleteFileAsync = (filename) => async (dispatch) => {
   try {
-    const resp = await axios.delete(`${API}/${filename}`);
+    const resp = await apiClient.delete(`/${filename}`);
     dispatch(deleteFile(resp.data));
-    dispatch(getFilesAsync());
+    await dispatch(getFilesAsync());
   } catch (err) {
     console.log(err);
   }
@@ -58,9 +71,9 @@ export const deleteFileAsync = (filename) => async (dispatch) => {
 
 export const cleanDatasetAsync = (filename) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}/clean/${filename}`);
+    const resp = await apiClient.post(`/clean/${filename}`, null);
     dispatch(cleanDataset(resp.data));
-    dispatch(getFilesAsync());
+    await dispatch(getFilesAsync());
   } catch (err) {
     console.log(err);
   }
@@ -68,9 +81,9 @@ export const cleanDatasetAsync = (filename) => async (dispatch) => {
 
 export const labelDatasetAsync = (filename, JsonData) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}/label/${filename}`, JsonData);
+    const resp = await apiClient.post(`/label/${filename}`, JsonData);
     dispatch(labelDataset(resp.data));
-    dispatch(getFilesAsync());
+    await dispatch(getFilesAsync());
   } catch (err) {
     console.log(err);
   }
@@ -78,9 +91,9 @@ export const labelDatasetAsync = (filename, JsonData) => async (dispatch) => {
 
 export const transformDatasetAsync = (filename) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}/transform/${filename}`);
+    const resp = await apiClient.post(`/transform/${filename}`, null);
     dispatch(transformDataset(resp.data));
-    dispatch(getFilesAsync());
+    await dispatch(getFilesAsync());
   } catch (err) {
     console.log(err);
   }

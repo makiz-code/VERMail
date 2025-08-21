@@ -1,6 +1,23 @@
-from config.mlibs import *
+import pandas as pd
+import numpy as np
+import spacy
+import json
+import os
+import re
+import string
+import random
+import torch
+import warnings
+from transformers import BertTokenizer, BertForMaskedLM, logging
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from concurrent.futures import ThreadPoolExecutor
+from libs.MailKit import json_to_json, csv_to_json, xlsx_to_json, mails_to_json
 
-
+logging.get_logger("transformers").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", message="errors='ignore' is deprecated.*")
+warnings.filterwarnings("ignore", message="Downcasting behavior in `replace` is deprecated.*")
+warnings.filterwarnings("ignore", message="`huggingface_hub` cache-system uses symlinks.*")
 
 ## Variables
 
@@ -14,8 +31,6 @@ model = BertForMaskedLM.from_pretrained('bert-base-uncased').to(device)
 nlp = spacy.load("en_core_web_md")
 max_workers = max(4, os.cpu_count() // 2)
 
-
-
 ## Data Extraction
 
 def data_extraction(src_path, dest_path):
@@ -28,8 +43,6 @@ def data_extraction(src_path, dest_path):
     return True
     
 def extract_data(path):
-    from libs.MailKit import json_to_json, csv_to_json, xlsx_to_json, mails_to_json
-
     extension = os.path.splitext(path)[1]
     if extension == ".json":
         data = json_to_json(path)
@@ -59,11 +72,14 @@ def format_dataframe(df):
     raise Exception('File format not compatible')
 
 def get_files(path):
-    df = pd.read_csv(path, sep='|')
+    try:
+        df = pd.read_csv(path, sep='|', on_bad_lines='skip', engine='python')
+    except pd.errors.ParserError as e:
+        return None
 
     filename = os.path.basename(path)
     rows_count = len(df)
-    labeled_count = df['topic'].count()
+    labeled_count = df['topic'].count() if 'topic' in df.columns else 0
     unlabeled_count = rows_count - labeled_count
 
     return {
@@ -72,8 +88,6 @@ def get_files(path):
         'labeled_count': int(labeled_count),
         'unlabeled_count': int(unlabeled_count)
     }
-
-
 
 ## Data Cleaning
 
@@ -146,8 +160,6 @@ def drop_duplicates(df, similarity_threshold):
     df = df.drop(indices_to_remove).reset_index(drop=True)
     return df
 
-
-
 ## Data Labeling
 
 def data_labeling(path, json_data):
@@ -164,8 +176,6 @@ def filter_by_topics(path, topics):
         raise Exception('No valid data found')
     json_data = json.loads(filtered_df.to_json(orient='records'))
     return json_data
-
-
 
 ## Data Reduction
 
@@ -188,28 +198,28 @@ def process_rows(df, actions, n_workers=max_workers):
     return df[['subject', 'body', 'topic']]
 
 def process_row(text, topic, max_num=3, threshold=0.2):
-    if pd.isna(topic):
+    if pd.isna(topic) or not isinstance(text, str):
         return text
-    doc = nlp(text)
-    
-    sents = []
-    for index, sent in enumerate(doc.sents):
-        if len(sent.text.split()) > 1:
-            similarity = get_similarity(get_embeddings(sent.text), get_embeddings(topic))
+
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    if not paragraphs:
+        return None
+
+    scored_paragraphs = []
+    for idx, para in enumerate(paragraphs):
+        if len(para.split()) > 1:
+            similarity = get_similarity(get_embeddings(para), get_embeddings(topic))
             if similarity > threshold:
-                sents.append((sent.text,similarity,index))
-                
-    sorted_sents = sorted(sents, key=lambda x: x[1], reverse=True)
-    sorted_sents = sorted_sents[:min(max_num,len(sorted_sents))]
-    sorted_sents = sorted(sorted_sents, key=lambda x: x[2])
-    
-    if sorted_sents:
-        text = ' '.join(list(zip(*sorted_sents))[0])
-    else:
-        text = None
-    return text
+                scored_paragraphs.append((para, similarity, idx))
 
+    if not scored_paragraphs:
+        return None
 
+    scored_paragraphs = sorted(scored_paragraphs, key=lambda x: x[1], reverse=True)
+    scored_paragraphs = scored_paragraphs[:min(max_num, len(scored_paragraphs))]
+    scored_paragraphs = sorted(scored_paragraphs, key=lambda x: x[2])
+
+    return "\n\n".join([p[0] for p in scored_paragraphs])
 
 ## Data Augmentation
 

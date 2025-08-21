@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
@@ -14,11 +14,25 @@ import superAdminRoutes from "./routes/superAdminRoutes.js";
 import techAdminRoutes from "./routes/techAdminRoutes.js";
 import busiAdminRoutes from "./routes/busiAdminRoutes.js";
 import sysUserRoutes from "./routes/sysUserRoutes.js";
+import jwt_decode from "jwt-decode";
 
 function App() {
   const mainPanel = useRef(null);
 
-  const { access } = useSelector((state) => state.login);
+  const { token } = useSelector((state) => state.login);
+
+  const role = useMemo(() => {
+    if (token) {
+      try {
+        const decoded = jwt_decode(token);
+        return String(decoded.role);
+      } catch (err) {
+        console.error("Failed to decode token:", err);
+        return null;
+      }
+    }
+    return null;
+  }, [token]);
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -62,42 +76,75 @@ function App() {
     <Router>
       <Switch>
         <Route exact path="/login" component={Login} />
+
         <Route path="/super-admin">
           {() =>
-            access?.token && access?.role === "0" ? (
-              generateMainPanelContent(superAdminRoutes)
+            token && role === "SuperAdmin" ? (
+              <Switch>
+                <Route exact path={superAdminRoutes[0].layout}>
+                  <Redirect
+                    to={superAdminRoutes[0].layout + superAdminRoutes[0].path}
+                  />
+                </Route>
+                {generateMainPanelContent(superAdminRoutes)}
+              </Switch>
             ) : (
               <Redirect to="/login" />
             )
           }
         </Route>
+
         <Route path="/tech-admin">
           {() =>
-            access?.token && access?.role === "1" ? (
-              generateMainPanelContent(techAdminRoutes)
+            token && role === "TechAdmin" ? (
+              <Switch>
+                <Route exact path={techAdminRoutes[0].layout}>
+                  <Redirect
+                    to={techAdminRoutes[0].layout + techAdminRoutes[0].path}
+                  />
+                </Route>
+                {generateMainPanelContent(techAdminRoutes)}
+              </Switch>
             ) : (
               <Redirect to="/login" />
             )
           }
         </Route>
+
         <Route path="/busi-admin">
           {() =>
-            access?.token && access?.role === "2" ? (
-              generateMainPanelContent(busiAdminRoutes)
+            token && role === "BusiAdmin" ? (
+              <Switch>
+                <Route exact path={busiAdminRoutes[0].layout}>
+                  <Redirect
+                    to={busiAdminRoutes[0].layout + busiAdminRoutes[0].path}
+                  />
+                </Route>
+                {generateMainPanelContent(busiAdminRoutes)}
+              </Switch>
             ) : (
               <Redirect to="/login" />
             )
           }
         </Route>
+
         <Route path="/sys-user">
           {() =>
-            access?.token && access?.role === "3" ? (
-              generateMainPanelContent(sysUserRoutes)
+            token && role === "SysUser" ? (
+              <Switch>
+                <Route exact path={sysUserRoutes[0].layout}>
+                  <Redirect
+                    to={sysUserRoutes[0].layout + sysUserRoutes[0].path}
+                  />
+                </Route>
+                {generateMainPanelContent(sysUserRoutes)}
+              </Switch>
             ) : (
               <Redirect to="/login" />
             )
           }
         </Route>
+
         <Redirect from="/" to="/login" />
       </Switch>
     </Router>

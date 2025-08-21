@@ -1,9 +1,17 @@
-from config.blibs import *
+import os
+from flask import Blueprint, request, jsonify, send_file
+from bson import ObjectId
+from config.mongo import get_db
+from config.utils import get_time
+from config.access import role_required
+from flask_jwt_extended import jwt_required
 
 dashboard_bp = Blueprint('dashboard_bp', __name__)
 db = get_db()
 
 @dashboard_bp.route("/", methods=["POST"])
+@jwt_required()
+@role_required('SysUser')
 def parseEmails():
     try:
         params = {
@@ -14,7 +22,7 @@ def parseEmails():
             'topic_fields': {},
         }
 
-        for mailbox in db.mailboxes.find():
+        for mailbox in db.mailboxes.find({'state': 'active'}):
             params['email_list'].append(mailbox['email'])
             params['passkey_list'].append(mailbox['passkey'])
             params['repository_list'].append(mailbox['repository'])
@@ -69,7 +77,9 @@ def parseEmails():
             }
         })
     
-@dashboard_bp.route("/", methods=["GET"])    
+@dashboard_bp.route("/", methods=["GET"])   
+@jwt_required()
+@role_required('SysUser') 
 def getEmails():
     emails = list(db.emails.find())
     if emails:
@@ -99,6 +109,8 @@ def getEmails():
     
 
 @dashboard_bp.route('/<id>', methods=['PUT'])
+@jwt_required()
+@role_required('SysUser')
 def validateEmail(id):
     try:
         validate = db.emails.find_one({'_id': ObjectId(id)}).get('validate')
@@ -127,6 +139,8 @@ def validateEmail(id):
         })
     
 @dashboard_bp.route('/download/', methods=['POST'])
+@jwt_required()
+@role_required('SysUser')
 def downloadFile():
     try:
         params = request.json

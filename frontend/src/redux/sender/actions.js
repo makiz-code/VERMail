@@ -9,9 +9,24 @@ import {
 
 const API = "/senders";
 
+const apiClient = axios.create({
+  baseURL: API,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = JSON.parse(localStorage.getItem("token"));
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const addSenderAsync = (Sender) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}`, Sender);
+    const resp = await apiClient.post("/", Sender);
     dispatch(addSender(resp.data));
     dispatch(getSendersAsync());
   } catch (err) {
@@ -21,7 +36,7 @@ export const addSenderAsync = (Sender) => async (dispatch) => {
 
 export const getSendersAsync = () => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}`);
+    const resp = await apiClient.get("/");
     dispatch(getSenders(resp.data));
   } catch (err) {
     console.log(err);
@@ -30,7 +45,7 @@ export const getSendersAsync = () => async (dispatch) => {
 
 export const getSenderAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}/${id}`);
+    const resp = await apiClient.get(`/${id}`);
     dispatch(getSender(resp.data));
   } catch (err) {
     console.log(err);
@@ -39,7 +54,7 @@ export const getSenderAsync = (id) => async (dispatch) => {
 
 export const updateSenderAsync = (id, Sender) => async (dispatch) => {
   try {
-    const resp = await axios.put(`${API}/${id}`, Sender);
+    const resp = await apiClient.put(`/${id}`, Sender);
     dispatch(updateSender(resp.data));
     dispatch(getSendersAsync());
   } catch (err) {
@@ -49,7 +64,7 @@ export const updateSenderAsync = (id, Sender) => async (dispatch) => {
 
 export const deleteSenderAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.delete(`${API}/${id}`);
+    const resp = await apiClient.delete(`/${id}`);
     dispatch(deleteSender(resp.data));
     dispatch(getSendersAsync());
   } catch (err) {

@@ -9,11 +9,26 @@ import {
 
 const API = "/accounts";
 
+const apiClient = axios.create({
+  baseURL: API,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = JSON.parse(localStorage.getItem("token"));
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const addAccountAsync = (Account) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}`, Account);
+    const resp = await apiClient.post("/", Account);
     dispatch(addAccount(resp.data));
-    dispatch(getAccountsAsync());
+    await dispatch(getAccountsAsync());
   } catch (err) {
     console.log(err);
   }
@@ -21,7 +36,7 @@ export const addAccountAsync = (Account) => async (dispatch) => {
 
 export const getAccountsAsync = () => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}`);
+    const resp = await apiClient.get("/");
     dispatch(getAccounts(resp.data));
   } catch (err) {
     console.log(err);
@@ -30,7 +45,7 @@ export const getAccountsAsync = () => async (dispatch) => {
 
 export const getAccountAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}/${id}`);
+    const resp = await apiClient.get(`/${id}`);
     dispatch(getAccount(resp.data));
   } catch (err) {
     console.log(err);
@@ -39,9 +54,9 @@ export const getAccountAsync = (id) => async (dispatch) => {
 
 export const updateAccountAsync = (id, Account) => async (dispatch) => {
   try {
-    const resp = await axios.put(`${API}/${id}`, Account);
+    const resp = await apiClient.put(`/${id}`, Account);
     dispatch(updateAccount(resp.data));
-    dispatch(getAccountsAsync());
+    await dispatch(getAccountsAsync());
   } catch (err) {
     console.log(err);
   }
@@ -49,9 +64,9 @@ export const updateAccountAsync = (id, Account) => async (dispatch) => {
 
 export const deleteAccountAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.delete(`${API}/${id}`);
+    const resp = await apiClient.delete(`/${id}`);
     dispatch(deleteAccount(resp.data));
-    dispatch(getAccountsAsync());
+    await dispatch(getAccountsAsync());
   } catch (err) {
     console.log(err);
   }

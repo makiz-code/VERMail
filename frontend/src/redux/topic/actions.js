@@ -9,9 +9,24 @@ import {
 
 const API = "/topics";
 
+const apiClient = axios.create({
+  baseURL: API,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = JSON.parse(localStorage.getItem("token"));
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const addTopicAsync = (Topic) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}`, Topic);
+    const resp = await apiClient.post("/", Topic);
     dispatch(addTopic(resp.data));
     dispatch(getTopicsAsync());
   } catch (err) {
@@ -21,7 +36,7 @@ export const addTopicAsync = (Topic) => async (dispatch) => {
 
 export const getTopicsAsync = () => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}`);
+    const resp = await apiClient.get("/");
     dispatch(getTopics(resp.data));
   } catch (err) {
     console.log(err);
@@ -30,7 +45,7 @@ export const getTopicsAsync = () => async (dispatch) => {
 
 export const getTopicAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}/${id}`);
+    const resp = await apiClient.get(`/${id}`);
     dispatch(getTopic(resp.data));
   } catch (err) {
     console.log(err);
@@ -39,7 +54,7 @@ export const getTopicAsync = (id) => async (dispatch) => {
 
 export const updateTopicAsync = (id, Topic) => async (dispatch) => {
   try {
-    const resp = await axios.put(`${API}/${id}`, Topic);
+    const resp = await apiClient.put(`/${id}`, Topic);
     dispatch(updateTopic(resp.data));
     dispatch(getTopicsAsync());
   } catch (err) {
@@ -49,7 +64,7 @@ export const updateTopicAsync = (id, Topic) => async (dispatch) => {
 
 export const deleteTopicAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.delete(`${API}/${id}`);
+    const resp = await apiClient.delete(`/${id}`);
     dispatch(deleteTopic(resp.data));
     dispatch(getTopicsAsync());
   } catch (err) {

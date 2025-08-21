@@ -40,7 +40,9 @@ class Account:
         
     @staticmethod
     def validate_role(role):
-        if role in ['1', '2', '3']:
+        valid_roles = ['TechAdmin', 'BusiAdmin', 'SysUser']
+        if role in valid_roles:
             return role
         else:
             raise Exception("role: Invalid role format")
+

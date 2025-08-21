@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+load_dotenv() 
+
+import os
 from flask import Flask
 from flask_cors import CORS
 from apis.mailboxRoutes import mailbox_bp
@@ -9,10 +13,18 @@ from apis.modelRoutes import model_bp
 from apis.dashboardRoutes import dashboard_bp
 from apis.accountRoutes import account_bp
 from apis.loginRoutes import login_bp
-from config.DBs import conf_db
+from config.mongo import conf_db
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
-CORS(app)
+
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
+jwt = JWTManager(app)
+
+CORS(app, 
+    supports_credentials=True, 
+    origins=[os.getenv('FRONTEND_URL')], 
+    allow_headers=["Content-Type", "Authorization"])
 
 app.register_blueprint(mailbox_bp, url_prefix='/mailboxes')
 app.register_blueprint(sender_bp, url_prefix='/senders')

@@ -61,11 +61,18 @@ function Senders() {
 
   useEffect(() => {
     setState(initialState);
+    setEditMode(false);
+    setSenderId(null);
   }, [location.pathname]);
 
   useEffect(() => {
-    setEditMode(false);
-  }, [state.mailbox]);
+    if (!editMode) {
+      setState((prevState) => ({
+        ...prevState,
+        mailbox: "",
+      }));
+    }
+  }, [editMode]);
 
   useEffect(() => {
     if (notif?.msg) {
@@ -75,7 +82,11 @@ function Senders() {
 
   useEffect(() => {
     if (notif?.type === "success" || notif?.type === "warning") {
-      setState((prevState) => ({ ...prevState, ["email"]: "",  ["company"]: "" }));
+      setState((prevState) => ({
+        ...prevState,
+        ["email"]: "",
+        ["company"]: "",
+      }));
       setSenderId(null);
       setEditMode(false);
     }
@@ -119,7 +130,11 @@ function Senders() {
 
   const handleUpdate = (id) => {
     if (editMode && senderId === id) {
-      setState((prevState) => ({ ...prevState, ["email"]: "", ["company"]: "" }));
+      setState((prevState) => ({
+        ...prevState,
+        ["email"]: "",
+        ["company"]: "",
+      }));
       setSenderId(null);
       setEditMode(false);
     } else {

@@ -1,6 +1,5 @@
 import { useLocation, NavLink } from "react-router-dom";
 import sidebarImage from "../assets/img/sidebar.jpg";
-import logoImageSM from "../assets/img/logoSmVERMail.png";
 import logoImage from "../assets/img/logoVERMail.png";
 
 function Sidebar({ routes }) {
@@ -17,7 +16,7 @@ function Sidebar({ routes }) {
         }}
       />
       <div className="sidebar-wrapper">
-        <div className="w-100 d-flex justify-content-center">
+        <div className="w-100 d-flex justify-content-center mt-1">
           <div className="w-50 my-3 d-flex justify-content-center">
             <img src={logoImage} className="img-fluid" alt="VERMEG Logo" />
           </div>
@@ -32,11 +31,11 @@ function Sidebar({ routes }) {
                 >
                   <NavLink
                     to={prop.layout + prop.path}
-                    className="nav-link"
+                    className="nav-link d-flex align-items-center"
                     activeClassName="active"
                   >
                     <i className={prop.icon} />
-                    <span className="pl-2">{prop.name}</span>
+                    <span className="pl-2 fs-6 fw-normal">{prop.name}</span>
                   </NavLink>
                 </li>
               );

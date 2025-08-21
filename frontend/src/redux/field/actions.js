@@ -9,11 +9,26 @@ import {
 
 const API = "/fields";
 
+const apiClient = axios.create({
+  baseURL: API,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = JSON.parse(localStorage.getItem("token"));
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const addFieldAsync = (Field) => async (dispatch) => {
   try {
-    const resp = await axios.post(`${API}`, Field);
+    const resp = await apiClient.post("/", Field);
     dispatch(addField(resp.data));
-    dispatch(getFieldsAsync());
+    await dispatch(getFieldsAsync());
   } catch (err) {
     console.log(err);
   }
@@ -21,7 +36,7 @@ export const addFieldAsync = (Field) => async (dispatch) => {
 
 export const getFieldsAsync = () => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}`);
+    const resp = await apiClient.get("/");
     dispatch(getFields(resp.data));
   } catch (err) {
     console.log(err);
@@ -30,7 +45,7 @@ export const getFieldsAsync = () => async (dispatch) => {
 
 export const getFieldAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.get(`${API}/${id}`);
+    const resp = await apiClient.get(`/${id}`);
     dispatch(getField(resp.data));
   } catch (err) {
     console.log(err);
@@ -39,9 +54,9 @@ export const getFieldAsync = (id) => async (dispatch) => {
 
 export const updateFieldAsync = (id, Field) => async (dispatch) => {
   try {
-    const resp = await axios.put(`${API}/${id}`, Field);
+    const resp = await apiClient.put(`/${id}`, Field);
     dispatch(updateField(resp.data));
-    dispatch(getFieldsAsync());
+    await dispatch(getFieldsAsync());
   } catch (err) {
     console.log(err);
   }
@@ -49,9 +64,9 @@ export const updateFieldAsync = (id, Field) => async (dispatch) => {
 
 export const deleteFieldAsync = (id) => async (dispatch) => {
   try {
-    const resp = await axios.delete(`${API}/${id}`);
+    const resp = await apiClient.delete(`/${id}`);
     dispatch(deleteField(resp.data));
-    dispatch(getFieldsAsync());
+    await dispatch(getFieldsAsync());
   } catch (err) {
     console.log(err);
   }

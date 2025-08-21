@@ -59,11 +59,18 @@ function Fields() {
 
   useEffect(() => {
     setState(initialState);
+    setEditMode(false);
+    setFieldId(null);
   }, [location.pathname]);
 
   useEffect(() => {
-    setEditMode(false);
-  }, [state.topic]);
+    if (!editMode) {
+      setState((prevState) => ({
+        ...prevState,
+        topic: "",
+      }));
+    }
+  }, [editMode]);
 
   useEffect(() => {
     if (notif?.msg) {

@@ -12,7 +12,7 @@ class Footer extends Component {
                   href="https://www.vermeg.com/solutions"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-decoration-none"
+                  className="text-secondary text-decoration-none"
                 >
                   Solutions
                 </a>
@@ -22,7 +22,7 @@ class Footer extends Component {
                   href="https://www.vermeg.com/about-us"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-decoration-none"
+                  className="text-secondary text-decoration-none"
                 >
                   About Us
                 </a>
@@ -32,7 +32,7 @@ class Footer extends Component {
                   href="https://www.vermeg.com/careers"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-decoration-none"
+                  className="text-secondary text-decoration-none"
                 >
                   Careers
                 </a>
@@ -42,7 +42,7 @@ class Footer extends Component {
                   href="https://www.vermeg.com/contact-us"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-decoration-none"
+                  className="text-secondary text-decoration-none"
                 >
                   Contact Us
                 </a>
@@ -54,7 +54,8 @@ class Footer extends Component {
               <a
                 href="http://www.vermeg.com"
                 target="_blank"
-                className="text-primary text-decoration-none fw-normal"
+                className="text-decoration-none fw-bold"
+                style={{ color: "rgba(73, 10, 156, 0.82)" }}
               >
                 VERMEG
               </a>

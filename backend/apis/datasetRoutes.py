@@ -1,9 +1,16 @@
-from config.blibs import *
+import os
+from flask import Blueprint, request, jsonify
+from config.mongo import get_db
+from config.utils import get_time
+from config.access import role_required
+from flask_jwt_extended import jwt_required
 
 dataset_bp = Blueprint('dataset_bp', __name__)
 db = get_db()
 
 @dataset_bp.route("/", methods=["POST"])
+@jwt_required()
+@role_required('BusiAdmin')
 def uploadFile():
     try:
         if "file" not in request.files:
@@ -55,6 +62,8 @@ def uploadFile():
             })
 
 @dataset_bp.route("/files", methods=["POST"])
+@jwt_required()
+@role_required('BusiAdmin')
 def uploadFiles():
     try:
         if "folder" not in request.files:
@@ -100,6 +109,8 @@ def uploadFiles():
             })
 
 @dataset_bp.route("/", methods=["GET"])
+@jwt_required()
+@role_required('BusiAdmin')
 def getFiles():
     folder_path = "backend/data/uploads"
     files = []
@@ -125,6 +136,8 @@ def getFiles():
         })
 
 @dataset_bp.route("/<filename>", methods=["DELETE"])
+@jwt_required()
+@role_required('BusiAdmin')
 def deleteFile(filename):
     try:
         save_folder = "backend/data/uploads"
@@ -155,6 +168,8 @@ def deleteFile(filename):
         })
 
 @dataset_bp.route("/clean/<filename>", methods=["POST"])
+@jwt_required()
+@role_required('BusiAdmin')
 def cleanDataset(filename):
     try:
         save_folder = "backend/data/uploads"
@@ -193,6 +208,8 @@ def cleanDataset(filename):
         })
 
 @dataset_bp.route("/label/<filename>", methods=["POST"])
+@jwt_required()
+@role_required('BusiAdmin')
 def labelDataset(filename):
     try:
         save_folder = "backend/data/uploads"
@@ -225,6 +242,8 @@ def labelDataset(filename):
         })
     
 @dataset_bp.route("/transform/<filename>", methods=["POST"])
+@jwt_required()
+@role_required('BusiAdmin')
 def transformDataset(filename):
     try:
         save_folder = "backend/data/uploads"

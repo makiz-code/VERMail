@@ -1,8 +1,22 @@
-from config.mlibs import *
-
-
-
-## Variables
+import pandas as pd
+import numpy as np
+import pytesseract
+import PyPDF2
+import tabula
+import spacy
+import email
+import json
+import mimetypes
+import fitz
+import base64
+import os
+import re
+import string
+from pdf2image import convert_from_path
+from extract_msg import Message
+from datetime import datetime
+from pptx import Presentation
+from docx import Document
 
 punctuation_list = re.escape(string.punctuation)
 
@@ -180,7 +194,12 @@ def extract_body_and_attachments(msg):
                 if 'images' in components:
                     imgs = components.pop('images')
                 base64_payload = get_file_with_payload(path)
-                attachments.append({"filename": sanitized_filename, "content_type": content_type, "components": components, "payload": base64_payload})
+                attachments.append({
+                    "filename": sanitized_filename, 
+                    "content_type": content_type, 
+                    "components": components, 
+                    "payload": base64_payload
+                })
                 
                 if imgs:
                     for a in imgs:
@@ -239,7 +258,12 @@ def msg_to_json(path):
         if 'images' in components:
             imgs = components.pop('images')
         base64_payload = get_file_with_payload(path)
-        attachments.append({"filename": sanitized_filename, "content_type": content_type, "components": components, "payload": base64_payload})
+        attachments.append({
+            "filename": sanitized_filename, 
+            "content_type": content_type, 
+            "components": components, 
+            "payload": base64_payload
+        })
 
         if imgs:
             for a in imgs:
@@ -315,20 +339,17 @@ def get_pdf_dimensions(path):
 def pdf_to_json(path):
     json_data = {}
     
-    if get_total_pages(path) > 10:
+    if get_total_pages(path) > 5:
         return json_data
         
     text, _ = extract_text_from_pdf(path)
     tables = extract_tables_from_pdf(path)
-    pairs = extract_pairs_from_pdf(path)
     images = extract_images_from_pdf(path)
     
     if text:
         json_data["text"] = clean_text(text)
     if tables:
         json_data["tables"] = tables
-    if pairs:
-        json_data["pairs"] = pairs
     if images:
         json_data["images"] = images
         
@@ -350,189 +371,53 @@ def extract_tables_from_pdf(path):
     dfs = []
     pages = get_total_pages(path)
     for page in range(1, pages + 1):
-        process_pdf_page(path, page, dfs)
-    merge_dataframes(dfs)
-    
+        try:
+            page_dfs = tabula.read_pdf(path, pages=page, stream=True, multiple_tables=True)
+            dfs.extend([df for df in page_dfs if not df.empty])
+        except UnicodeDecodeError as e:
+            raise Exception(f"Error parsing table: {str(e)}")
+        
+    # Merge consecutive DataFrames with the same columns
+    merged_dfs = []
+    buffer_df = dfs[0] if dfs else None
+
+    for next_df in dfs[1:]:
+        merge_needed = False
+        if len(buffer_df.columns) == len(next_df.columns):
+            is_header = True
+            for col in next_df.columns:
+                col_str = str(col)
+                if col_str == 'nan' or 'Unnamed:' in col_str:
+                    is_header = False
+                    break
+                if not re.match(r'^[a-zA-Z]+[!"\#\$%\&\(\)\*\+,\-\./:;<=>\?@\[\\\]\^_`\{\|\}\~\w\s]*$', col_str):
+                    is_header = False
+                    break
+                doc = nlp(col_str)
+                row_entity_types = {"DATE", "TIME", "GPE", "LOC", "MONEY",
+                                    "QUANTITY", "ORDINAL", "CARDINAL", "PERCENT"}
+                if any(token.ent_type_ in row_entity_types for token in doc):
+                    is_header = False
+                    break
+            if not is_header:
+                merge_needed = True
+
+        if merge_needed:
+            rows = [next_df.columns.tolist()] + next_df.values.tolist()
+            buffer_df = pd.concat([buffer_df, pd.DataFrame(rows, columns=buffer_df.columns.tolist())], ignore_index=True)
+        else:
+            merged_dfs.append(buffer_df)
+            buffer_df = next_df
+
+    if buffer_df is not None:
+        merged_dfs.append(buffer_df)
+
     tables = []
-    for df in dfs:
+    for df in merged_dfs:
         data = df.replace([pd.NaT, np.nan], None).to_json(orient='records')
         tables.append(json.loads(data))
-        
+
     return tables
-
-def process_pdf_page(path, page, dfs):
-    dfs_on_page = []
-    try:
-        dfs_on_page = tabula.read_pdf(path, pages=page, stream=True, multiple_tables=True)
-        dfs_on_page = [df for df in dfs_on_page if not df.empty]
-    except UnicodeDecodeError as e:
-        raise Exception(f"Error parsing implicit table: {str(e)}")
-        
-    if len(dfs_on_page) == 0:
-        try:
-            _, tokens = extract_text_from_pdf(path)
-            width, height = get_pdf_dimensions(path)
-            dfs_on_page = tabula.read_pdf(path, pages=page, area=[0,0, width, height], stream=True, multiple_tables=True)
-            dfs_on_page = [df for df in dfs_on_page if not df.empty]
-            
-            for df in dfs_on_page:
-                actual_df = preprocess_dataframe(df, tokens)
-                rows = [actual_df.shape[0], actual_df.shape[0]]
-                cols = [actual_df.shape[1], actual_df.shape[1]]
-                for j, row in actual_df.iterrows():
-                    row_list, start_index, end_index = strip_nan_from_both_ends(row.tolist())
-                    if len(row_list)>=2 and is_column_names(row_list):
-                        rows[0] = j
-                        cols = [start_index, end_index]
-                    elif j>rows[0]+1 and len(row_list) < (cols[1] - cols[0]) // 2:
-                        df_slice = actual_df.iloc[rows[0]:rows[1], cols[0]:cols[1]]
-                        df_slice = df_slice.reset_index(drop=True)
-                        new_cols = df_slice.iloc[0]
-                        new_rows = [list(df_slice.iloc[i]) for i in range(1,len(df_slice))]
-                        new_slice = pd.DataFrame(new_rows, columns=new_cols)
-                        dfs_on_page.append(new_slice)
-                        rows[0] = j
-                        cols = [actual_df.shape[1], actual_df.shape[1]]
-                        break
-                    elif j>rows[0]:
-                        rows[1] = j+1
-        except Exception as e:
-            raise Exception(f"Error parsing explicit table: {str(e)}")
-
-    for df in dfs_on_page:
-        if df.isna().sum().sum() < (0.3 * df.size) and len(df.columns.tolist())>1:
-            df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
-            df = df[df.notnull().sum(axis=1) > 1]
-            df = df.replace(r'^\s*$', np.nan, regex=True).dropna(axis=0, how='all').dropna(axis=1, how='all')
-            df.reset_index(drop=True, inplace=True)
-            dfs.append(df)
-
-def preprocess_dataframe(df, tokens):
-    df = df.dropna(axis=0, how='all').dropna(axis=1, how='all')
-    df = fix_dataframe(df, tokens)
-    header_df = pd.DataFrame([df.columns], columns=df.columns)
-    df = pd.concat([header_df, df], ignore_index=True)
-    return df
-
-def fix_dataframe(df, tokens):
-    for i, row in df.iterrows():
-        for j, cell in enumerate(row):
-            if pd.isna(cell):
-                continue
-            cell_tokens = cut_text_with_tokens(str(cell), tokens)
-            if is_column_names(cell_tokens):
-                if len(cell_tokens) >= 2:
-                    left_token = cell_tokens[0]
-                    right_token = cell_tokens[1]
-                    # Check if there's space on the left
-                    if j > 0 and pd.isna(row.iloc[j - 1]):
-                        df.iloc[i, j - 1] = left_token
-                        df.iloc[i, j] = right_token
-                    # Check if there's space on the right
-                    elif j < len(row) - 1 and pd.isna(row.iloc[j + 1]):
-                        df.iloc[i, j] = left_token
-                        df.iloc[i, j + 1] = right_token
-    
-    return df
-
-def cut_text_with_tokens(text, tokens):
-    segments = []
-    start_index = 0
-    
-    while start_index < len(text):
-        longest_tokens = []
-        for token in tokens:
-            if text[start_index:start_index + len(token)] == token:
-                longest_tokens.append(token)
-        
-        if longest_tokens:
-            longest_token = max(longest_tokens, key=len)
-            segments.append(longest_token)
-            start_index += len(longest_token)
-        else:
-            start_index += 1
-    
-    return segments
-
-def strip_nan_from_both_ends(lst):
-    # Find start index
-    start_index = 0
-    for i, val in enumerate(lst):
-        if not pd.isnull(val) and val != "":
-            start_index = i
-            break
-
-    # Find end index
-    end_index = len(lst) - 1
-    for i in range(len(lst) - 1, -1, -1):
-        if not pd.isnull(lst[i]) and lst[i] != "":
-            end_index = i
-            break
-
-    return lst[start_index:end_index + 1], start_index, end_index + 1
-
-def merge_dataframes(dfs):
-    index = 0
-    while index < len(dfs) - 1:
-        if len(dfs[index].columns) == len(dfs[index + 1].columns) and not is_column_names(dfs[index + 1].columns.tolist()):
-            rows = [dfs[index+1].columns.tolist()] + dfs[index+1].values.tolist()
-            dfs[index] = pd.concat([dfs[index], pd.DataFrame(rows,columns=dfs[index].columns.tolist())], ignore_index=True)
-            dfs.pop(index + 1)
-        else:
-            index += 1
-
-def is_column_pattern(doc):
-    text = doc.text
-    if text == 'nan' or 'Unnamed:' in text: 
-        return False
-    pattern = r'^[a-zA-Z]+[!"\#\$%\&\(\)\*\+,\-\./:;<=>\?@\[\\\]\^_`\{\|\}\~\w\s]*$'
-    return bool(re.match(pattern, text))
-
-def has_row_entity(doc):
-    tokens = list(doc)
-    row_entity_types = [
-        "DATE", "TIME", "GPE", "LOC", "MONEY", 
-        "QUANTITY", "ORDINAL", "CARDINAL", "PERCENT"
-    ]
-    for token in tokens:
-        if token.ent_type_ in row_entity_types:
-            return True
-    return False
-
-def is_column_names(lst):
-    for data in lst:
-        doc = nlp(str(data))
-        if has_row_entity(doc) or not is_column_pattern(doc):
-            return False
-    return True
-
-def extract_pairs_from_pdf(path):
-    _, tokens = extract_text_from_pdf(path)
-    pairs = {}
-    i = 0
-    while i < len(tokens):
-        # Check if the token itself is a key-value pair
-        key_match = re.match(r'([^:]+):(.+)', tokens[i])
-        if key_match:
-            key = key_match.group(1).strip()
-            value = key_match.group(2).strip()
-            pairs[key] = value
-            i += 1
-        else:
-            key_match = re.match(r'([^:]+):', tokens[i])
-            if key_match:
-                key = key_match.group(1).strip()
-                # The value is the next token
-                if i + 1 < len(tokens) and not re.match(r'([^:]+):', tokens[i + 1]):
-                    value = tokens[i + 1].strip()
-                    pairs[key] = value
-                    i += 2
-                else:
-                    pairs[key] = ''
-                    i += 1
-            else:
-                i += 1
-    return pairs
 
 def extract_images_from_pdf(path):
     with fitz.open(path) as pdf:
@@ -563,7 +448,12 @@ def extract_images_from_pdf(path):
 
                 content_type = get_content_type(image_path)
                 base64_payload = get_file_with_payload(image_path)
-                images.append({"filename": filename, "content_type": content_type, "components": img_data, "payload": base64_payload})
+                images.append({
+                    "filename": filename, 
+                    "content_type": content_type, 
+                    "components": img_data, 
+                    "payload": base64_payload
+                })
                     
                 return images
 

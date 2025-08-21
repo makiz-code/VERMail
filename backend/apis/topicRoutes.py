@@ -1,9 +1,17 @@
-from config.blibs import *
+from flask import Blueprint, request, jsonify
+from bson import ObjectId
+from config.mongo import get_db
+from config.utils import get_time
+from models.topicModel import Topic
+from config.access import role_required
+from flask_jwt_extended import jwt_required
 
 topic_bp = Blueprint('topic_bp', __name__)
 db = get_db()
 
 @topic_bp.route('/', methods=['POST'])
+@jwt_required()
+@role_required('BusiAdmin')
 def addTopic():
     try:
         topic_data = request.json
@@ -41,6 +49,8 @@ def addTopic():
         })
     
 @topic_bp.route('/', methods=['GET'])
+@jwt_required()
+@role_required('BusiAdmin')
 def getTopics():
     topics = []
     for topic in db.topics.find():
@@ -51,6 +61,8 @@ def getTopics():
     })
 
 @topic_bp.route('/<id>', methods=['GET'])
+@jwt_required()
+@role_required('BusiAdmin')
 def getTopic(id):
     topic = db.topics.find_one({'_id': ObjectId(id)})
     if topic:
@@ -67,6 +79,8 @@ def getTopic(id):
         })
     
 @topic_bp.route('/<id>', methods=['PUT'])
+@jwt_required()
+@role_required('BusiAdmin')
 def updateTopic(id):
     try:
         topic_data = request.json
@@ -124,6 +138,8 @@ def updateTopic(id):
         })
         
 @topic_bp.route('/<id>', methods=['DELETE'])
+@jwt_required()
+@role_required('BusiAdmin')
 def deleteTopic(id):
     topic = db.topics.find_one({'_id': ObjectId(id)})
     if topic:

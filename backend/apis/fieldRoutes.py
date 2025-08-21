@@ -1,9 +1,17 @@
-from config.blibs import *
+from flask import Blueprint, request, jsonify
+from bson import ObjectId
+from config.mongo import get_db
+from config.utils import get_time
+from models.fieldModel import Field
+from config.access import role_required
+from flask_jwt_extended import jwt_required
 
 field_bp = Blueprint('field_bp', __name__)
 db = get_db()
 
 @field_bp.route('/', methods=['POST'])
+@jwt_required()
+@role_required('BusiAdmin')
 def addField():
     try:
         field_data = request.json
@@ -42,6 +50,8 @@ def addField():
         })
     
 @field_bp.route('/', methods=['GET'])
+@jwt_required()
+@role_required('BusiAdmin')
 def getFields():
     fields = []
     for field in db.fields.find():
@@ -52,6 +62,8 @@ def getFields():
     })
 
 @field_bp.route('/<id>', methods=['GET'])
+@jwt_required()
+@role_required('BusiAdmin')
 def getField(id):
     field = db.fields.find_one({'_id': ObjectId(id)})
     if field:
@@ -68,6 +80,8 @@ def getField(id):
         })
     
 @field_bp.route('/<id>', methods=['PUT'])
+@jwt_required()
+@role_required('BusiAdmin')
 def updateField(id):
     try:
         field_data = request.json
@@ -123,6 +137,8 @@ def updateField(id):
         })
         
 @field_bp.route('/<id>', methods=['DELETE'])
+@jwt_required()
+@role_required('BusiAdmin')
 def deleteField(id):
     field = db.fields.find_one({'_id': ObjectId(id)})
     if field:

@@ -1,6 +1,17 @@
-from config.mlibs import *
+import pandas as pd
+import json
+import os
+import torch
+import warnings
+from transformers import BertForSequenceClassification, BertTokenizer, logging
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import train_test_split
+from torch.utils.data import Dataset, DataLoader
 
-
+logging.get_logger("transformers").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", message="errors='ignore' is deprecated.*")
+warnings.filterwarnings("ignore", message="Downcasting behavior in `replace` is deprecated.*")
+warnings.filterwarnings("ignore", message="`huggingface_hub` cache-system uses symlinks.*")
 
 ## Variables
 
@@ -10,8 +21,6 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model_path = "backend/data/models/VERModel.pth"
 metrics_path = "backend/data/models/metrics.json"
 labels_path = "backend/data/models/labels.json"
-
-
 
 ## Data Preparation
 
@@ -58,14 +67,15 @@ class EmailDataset(Dataset):
         topic = self.topics.iloc[idx]
 
         encoding = self.tokenizer.encode_plus(
-            subject,
-            body,
+            text=subject,
+            text_pair=body,
             add_special_tokens=True,
             max_length=self.max_len,
             padding='max_length',
             truncation=True,
             return_attention_mask=True,
-            return_tensors='pt'
+            return_tensors='pt',
+            return_overflowing_tokens=False
         )
 
         return {
@@ -73,8 +83,6 @@ class EmailDataset(Dataset):
             'attention_mask': encoding['attention_mask'].flatten(),
             'labels': torch.tensor(topic, dtype=torch.long)
         }
-
-
 
 ## Training & Evaluation
 
@@ -191,9 +199,7 @@ def training_process(json_data, num_epochs=3, batch_size=16, max_len=128, learni
 
     return best_metrics
 
-
-
-## Reset Model
+## Model Utilities
 
 def reset_model(directory):
     for filename in os.listdir(directory):
@@ -201,10 +207,6 @@ def reset_model(directory):
         if os.path.isfile(file_path):
             os.remove(file_path)
     return True
-
-
-
-## Get Metrics
 
 def get_metrics():
     if os.path.exists(metrics_path):

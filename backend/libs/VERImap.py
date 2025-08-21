@@ -1,23 +1,33 @@
-from config.mlibs import *
+import threading
+import imaplib
+import email
+import json
+from datetime import datetime
+import torch
+import warnings
+from transformers import BertForSequenceClassification, BertTokenizer, pipeline, logging
 from libs.MailKit import extract_email_data, delete_folder_contents
 
-
+logging.get_logger("transformers").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", message="errors='ignore' is deprecated.*")
+warnings.filterwarnings("ignore", message="Downcasting behavior in `replace` is deprecated.*")
+warnings.filterwarnings("ignore", message="`huggingface_hub` cache-system uses symlinks.*")
 
 ## Variables
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 model_path = "backend/data/models/VERModel.pth"
-labels_path = "backend/data/models/labels.pth"
+labels_path = "backend/data/models/labels.json"
 recs_path = "backend/data/records"
-labels = torch.load(labels_path)
+
+with open(labels_path, "r") as f:
+    labels  = json.load(f)
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=len(labels)).to(device)
 model.load_state_dict(torch.load(model_path))
 qa = pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
-
-
 
 ## IMAP Server
 
@@ -111,8 +121,6 @@ def parse_emails(email_list, passkey_list, sender_emails_list, repository_list):
 
     return parsed_data
 
-
-
 ## Email Classification
 
 def get_probs(subject, body, labels=labels, model=model, tokenizer=tokenizer):
@@ -153,8 +161,6 @@ def classify_emails(parsed_data):
         else:
             predicted_data.append(data)
     return predicted_data
-
-
 
 ## Information Extraction
 
@@ -230,13 +236,23 @@ def define_state(extracted_data):
         final_data.append(data)
     return final_data
 
-
-
-## Start Process
+## MailBot Pipeline
 
 def get_emails(params):
-    parsed_data = parse_emails(params['email_list'], params['passkey_list'], params['sender_emails_list'], params['repository_list'])
+    # Parse emails
+    parsed_data = parse_emails(
+        params['email_list'],
+        params['passkey_list'],
+        params['sender_emails_list'],
+        params['repository_list'],
+    )
+
+    # Classify parsed emails
     predicted_data = classify_emails(parsed_data)
+
+    # Extract fields based on topics
     extracted_data = extract_fields(predicted_data, params['topic_fields'])
+
+    # Define the final state
     final_data = define_state(extracted_data)
     return final_data

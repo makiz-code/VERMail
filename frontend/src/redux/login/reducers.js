@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const savedAccess = JSON.parse(localStorage.getItem("access")) || {};
+const savedToken = JSON.parse(localStorage.getItem("token")) || {};
 
 const initialState = {
-  access: savedAccess,
+  token: savedToken,
   notif: {},
 };
 
@@ -12,14 +12,18 @@ const loginSlice = createSlice({
   initialState,
   reducers: {
     login(state, action) {
-      state.access = action.payload.data;
-      state.notif = action.payload.notif;
-      localStorage.setItem("access", JSON.stringify(action.payload.data));
+      state.notif = action.payload.notif || {};
+      state.token = action.payload.data?.token || {};
+      if (state.token && Object.keys(state.token).length) {
+        localStorage.setItem("token", JSON.stringify(state.token));
+      } else {
+        localStorage.removeItem("token");
+      }
     },
     logout(state) {
-      state.access = {};
+      state.token = {};
       state.notif = {};
-      localStorage.removeItem("access");
+      localStorage.removeItem("token");
     },
   },
 });

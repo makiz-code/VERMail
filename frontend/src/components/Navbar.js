@@ -8,14 +8,14 @@ function Navmenu({ routes }) {
   const location = useLocation();
   const history = useHistory();
 
-  const { access } = useSelector((state) => state.login);
+  const { token } = useSelector((state) => state.login);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!access?.token) {
+    if (!token) {
       return history.push("/login");
     }
-  }, [access, history]);
+  }, [token, history]);
 
   const mobileSidebarToggle = (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { loginAsync } from "../redux/login/actions";
@@ -6,6 +6,7 @@ import NotificationAlert from "react-notification-alert";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import logoImage from "../assets/img/logoVERMail.png";
 import backgroundImage from "../assets/img/backgroundImage.jpg";
+import jwt_decode from "jwt-decode";
 
 const initialState = {
   username: "",
@@ -30,7 +31,7 @@ function Login() {
     notificationAlertRef.current.notificationAlert(options);
   };
 
-  const { notif, access } = useSelector((state) => state.login);
+  const { notif, token } = useSelector((state) => state.login);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -39,20 +40,33 @@ function Login() {
     }
   }, [notif]);
 
+  const role = useMemo(() => {
+    if (token) {
+      try {
+        const decoded = jwt_decode(token);
+        return String(decoded.role);
+      } catch (err) {
+        console.error("Failed to decode token:", err);
+        return null;
+      }
+    }
+    return null;
+  }, [token]);
+
   useEffect(() => {
-    if (access?.token) {
-      switch (access.role) {
-        case "0":
+    if (token && role) {
+      switch (role) {
+        case "SuperAdmin":
           return history.push("/super-admin/accounts");
-        case "1":
+        case "TechAdmin":
           return history.push("/tech-admin/mailboxes");
-        case "2":
+        case "BusiAdmin":
           return history.push("/busi-admin/topics");
-        case "3":
+        case "SysUser":
           return history.push("/sys-user/dashboard");
       }
     }
-  }, [access, history]);
+  }, [token, history]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,7 +87,7 @@ function Login() {
       className="container-fluid"
       style={{
         height: "100vh",
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)), url(${backgroundImage})`,
+        backgroundImage: `linear-gradient(rgba(44, 44, 44, 0.75), rgba(44, 44, 44, 0.75)), url(${backgroundImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         animation: "fadeIn 1s ease-in-out forwards",

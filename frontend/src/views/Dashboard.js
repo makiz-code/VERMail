@@ -94,8 +94,22 @@ function Dashboard() {
   const { emails, notif } = useSelector((state) => state.dashboard);
   const dispatch = useDispatch();
 
+  const lastParseRef = useRef(0);
+
+  const parseEmailsThrottled = () => {
+    const now = Date.now();
+    if (now - lastParseRef.current >= 5000) {
+      dispatch(parseEmailsAsync());
+      lastParseRef.current = now;
+    }
+  };
+
   useEffect(() => {
-    dispatch(parseEmailsAsync());
+    parseEmailsThrottled();
+    const interval = setInterval(() => {
+      parseEmailsThrottled();
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -103,7 +117,7 @@ function Dashboard() {
       notif?.msg?.includes("New emails added to database") ||
       notif?.msg?.includes("No existing new emails")
     ) {
-      dispatch(parseEmailsAsync());
+      parseEmailsThrottled();
     }
   }, [notif]);
 

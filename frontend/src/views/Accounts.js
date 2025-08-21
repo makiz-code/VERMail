@@ -213,10 +213,10 @@ function Accounts() {
                         value={state.role}
                         onChange={handleChange}
                       >
-                        <option value="">Asign Role</option>
-                        <option value="1">Technical Admin</option>
-                        <option value="2">Business Admin</option>
-                        <option value="3">System User</option>
+                        <option value="">Assign Role</option>
+                        <option value="TechAdmin">Technical Admin</option>
+                        <option value="BusiAdmin">Business Admin</option>
+                        <option value="SysUser">System User</option>
                       </select>
                     </div>
                   </div>

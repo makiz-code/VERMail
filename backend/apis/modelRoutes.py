@@ -1,9 +1,15 @@
-from config.blibs import *
+from flask import Blueprint, request, jsonify
+from config.mongo import get_db
+from config.utils import get_time
+from config.access import role_required
+from flask_jwt_extended import jwt_required
 
 model_bp = Blueprint('model_bp', __name__)
 db = get_db()
 
 @model_bp.route("/dataset", methods=["GET"])
+@jwt_required()
+@role_required('BusiAdmin')
 def getDataset():
     try:
         topic_names = [topic['name'] for topic in db.topics.find({'state': True}, {'_id': 0, 'name': 1})]
@@ -35,6 +41,8 @@ def getDataset():
         })
 
 @model_bp.route("/dataset", methods=["DELETE"])
+@jwt_required()
+@role_required('BusiAdmin')
 def dropDataset():
     try:
         db.dataset.drop()
@@ -53,6 +61,8 @@ def dropDataset():
         })
 
 @model_bp.route("/", methods=["POST"])
+@jwt_required()
+@role_required('BusiAdmin')
 def trainModel():
     num_epochs = request.json['numEpochs']
     batch_size = request.json['batchSize']
@@ -84,6 +94,8 @@ def trainModel():
         })
 
 @model_bp.route("/", methods=["GET"])
+@jwt_required()
+@role_required('BusiAdmin')
 def getMetrics():
     from libs.VERMod import get_metrics
     best_metrics = get_metrics()
@@ -100,6 +112,8 @@ def getMetrics():
         })
 
 @model_bp.route("/", methods=["DELETE"])
+@jwt_required()
+@role_required('BusiAdmin')
 def resetModel():
     from libs.VERMod import reset_model
     result = reset_model("backend/data/models")
