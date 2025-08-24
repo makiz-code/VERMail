@@ -23,7 +23,7 @@ jwt = JWTManager(app)
 
 CORS(app, 
     supports_credentials=True, 
-    origins=[os.getenv('FRONTEND_URL')], 
+    origins=[os.getenv('CORS_ORIGIN')], 
     allow_headers=["Content-Type", "Authorization"])
 
 app.register_blueprint(mailbox_bp, url_prefix='/mailboxes')
