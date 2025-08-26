@@ -1,9 +1,9 @@
 import datetime
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token
 from werkzeug.security import check_password_hash
 from config.mongo import get_db
 from config.utils import get_time
-from flask_jwt_extended import create_access_token
 
 login_bp = Blueprint('login_bp', __name__)
 db = get_db()

@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from config.mongo import get_db
 from config.utils import get_time
 from models.fieldModel import Field
 from config.access import role_required
-from flask_jwt_extended import jwt_required
 
 field_bp = Blueprint('field_bp', __name__)
 db = get_db()
@@ -96,14 +96,6 @@ def updateField(id):
                 'notif': {
                     'type': "danger",
                     'msg': f"Failed to update field: Field <b data-time='{get_time()}'>{new_name}</b> already associated with Topic <b data-time='{get_time()}'>{topic}</b>", 
-                }
-            })
-        
-        elif existing_field and str(existing_field['_id']) == id:
-            return jsonify({
-                'notif': {
-                    'type': "warning",
-                    'msg': f"Unable to update field: <b data-time='{get_time()}'></b>No changes were made to the field", 
                 }
             })
 

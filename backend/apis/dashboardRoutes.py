@@ -1,13 +1,19 @@
 import os
 from flask import Blueprint, request, jsonify, send_file
+from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from config.mongo import get_db
 from config.utils import get_time
 from config.access import role_required
-from flask_jwt_extended import jwt_required
+from libs.VERImap import init_pipes, get_emails
+from libs.MailKit import set_file_with_payload
 
 dashboard_bp = Blueprint('dashboard_bp', __name__)
 db = get_db()
+
+model_path = "backend/data/models/VERModel.pth"
+labels_path = "backend/data/models/labels.json"
+recs_path = "backend/data/records"
 
 @dashboard_bp.route("/", methods=["POST"])
 @jwt_required()
@@ -22,7 +28,7 @@ def parseEmails():
             'topic_fields': {},
         }
 
-        for mailbox in db.mailboxes.find({'state': 'active'}):
+        for mailbox in db.mailboxes.find({'state': True}):
             params['email_list'].append(mailbox['email'])
             params['passkey_list'].append(mailbox['passkey'])
             params['repository_list'].append(mailbox['repository'])
@@ -39,9 +45,16 @@ def parseEmails():
                 query = field['query']
                 params['topic_fields'][topic_name][field_name] = query
 
-        from libs.VERImap import get_emails
-        final_data = get_emails(params)
-
+        tokenizer, model, qa, labels = init_pipes(model_path, labels_path)
+        if None in (tokenizer, model, qa, labels):
+            return jsonify({
+                'notif': {
+                    'type': "warning",
+                    'msg': f"No model available to load yet<b data-time='{get_time()}'></b>",
+                }
+            })
+        
+        final_data = get_emails(tokenizer, model, qa, labels, params)
         for data in final_data:
             data['validate'] = False
 
@@ -147,12 +160,10 @@ def downloadFile():
         filename = params.get('filename')
         payload = params.get('payload')
 
-        path = "backend/data/records"
-        filepath = os.path.abspath(os.path.join(path, filename))
+        os.makedirs(recs_path, exist_ok=True)
+        filepath = os.path.abspath(os.path.join(recs_path, filename))
 
-        from libs.MailKit import set_file_with_payload
         set_file_with_payload(filepath, payload)
-
         return send_file(filepath, as_attachment=True)
     except Exception as e:
         return jsonify({

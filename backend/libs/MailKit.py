@@ -12,34 +12,42 @@ import base64
 import os
 import re
 import string
+import shutil
+import warnings
 from pdf2image import convert_from_path
 from extract_msg import Message
 from datetime import datetime
 from pptx import Presentation
 from docx import Document
+from config.envs import NER_MODEL
+
+warnings.filterwarnings("ignore", category=FutureWarning, module=r"tabula.*")
+pd.set_option('future.no_silent_downcasting', True)
+
+## Variables
 
 punctuation_list = re.escape(string.punctuation)
 
-nlp = spacy.load("en_core_web_md")
+recs_path = "backend/data/records"
 
 def clean_text(text):
     text = re.sub(r'\s*\n+\s*', '\u7102', text)
-    pattern = re.compile(f'\s*([{punctuation_list}])\s+')
+    pattern = re.compile(fr'\s*([{punctuation_list}])\s+')
     text = re.sub(pattern, '\\1 ', text)
     text = re.sub(r'\s+', ' ', text)
-    pattern = re.compile(f'[{punctuation_list}]{{2,}}')
+    pattern = re.compile(fr'[{punctuation_list}]{{2,}}')
     text = re.sub(pattern, '', text)
     text = re.sub(r'\u7102', '\n', text)
     return text.strip()
 
 def clean_mail(text):
     text = re.sub(r'\s*\n+\s*', '\u7102', text)
-    pattern = re.compile(f'\s*([{punctuation_list}])\s+')
+    pattern = re.compile(fr'\s*([{punctuation_list}])\s+')
     text = re.sub(pattern, '\\1 ', text)
     text = re.sub(r'\s+', ' ', text)
-    pattern = re.compile(f'[{punctuation_list}]{{2,}}')
+    pattern = re.compile(fr'[{punctuation_list}]{{2,}}')
     text = re.sub(pattern, '', text)
-    pattern = re.compile(f'[^\w\s\d{punctuation_list}].+')
+    pattern = re.compile(fr'[^\w\s\d{punctuation_list}].+')
     text = re.sub(pattern, '', text)
     text = re.sub(r'\u7102', '\n', text)
     return text.strip()
@@ -65,8 +73,8 @@ def json_to_json(path):
         json_data = json.load(file)
     return json_data
 
-def csv_to_json(path, delimiter=','):
-    df = pd.read_csv(path, delimiter=delimiter)
+def csv_to_json(path):
+    df = pd.read_csv(path, sep=',', quotechar='"', engine='python', on_bad_lines='skip')
     
     df.replace(r'^\s*$', np.nan, regex=True).dropna(axis=0, how='all').dropna(axis=1, how='all')
     json_str = df.to_json(orient='records')
@@ -182,7 +190,7 @@ def extract_body_and_attachments(msg):
                 content_type = part.get_content_type()
                 payload = part.get_payload(decode=True)
 
-                dir_path = create_dir("backend/data/records")
+                dir_path = create_dir(recs_path)
                 path = os.path.join(dir_path, sanitized_filename)
 
                 # Save attachment file
@@ -205,6 +213,7 @@ def extract_body_and_attachments(msg):
                     for a in imgs:
                         attachments.append(a)
 
+    cleanup_records_folder(recs_path)
     return body, attachments
 
 def scrap_data_file(path):
@@ -237,54 +246,59 @@ def eml_to_json(path):
 
 def msg_to_json(path):
     msg = Message(path)
-    attachments_objects = msg.attachments 
+    try:
+        attachments_objects = msg.attachments 
+        attachments = []            
+
+        for attachment in attachments_objects:
+            filename = attachment.name
+            sanitized_filename = sanitize_filename(filename)
+            content_type = get_content_type(sanitized_filename)
+            payload = attachment.data
+
+            dir_path = create_dir(recs_path)
+            attachment_path = os.path.join(dir_path, sanitized_filename)
+
+            # Save attachment file
+            with open(attachment_path, "wb") as file:
+                file.write(payload)
+
+            imgs = []
+            components = scrap_data_file(attachment_path)
+            if 'images' in components:
+                imgs = components.pop('images')
+
+            base64_payload = get_file_with_payload(attachment_path)
+            attachments.append({
+                "filename": sanitized_filename, 
+                "content_type": content_type, 
+                "components": components, 
+                "payload": base64_payload
+            })
+
+            if imgs:
+                attachments.extend(imgs)
+
+        sender = email.utils.parseaddr(msg.sender)[1]
+        to_recipients = [email.utils.parseaddr(msg.to)[1]] if msg.to else []
+        cc_recipients = [email.utils.parseaddr(msg.cc)[1]] if msg.cc else []
+
+        datetime_combined = msg.date.strftime('%m/%d/%Y %H:%M:%S') if msg.date else ''
+
+        json_data = {
+            "subject": clean_mail(msg.subject),
+            "from": sender,
+            "to": to_recipients,
+            "cc": cc_recipients,
+            "datetime": datetime_combined,
+            "body": clean_mail(msg.body),
+            "attachments": attachments
+        }
+
+    finally:
+        msg.close()
     
-    attachments = []            
-    for attachment in attachments_objects:
-        filename = attachment.name
-        sanitized_filename = sanitize_filename(filename)
-        content_type = get_content_type(sanitized_filename)
-        payload = attachment.data
-
-        dir_path = create_dir("backend/data/records")
-        path = os.path.join(dir_path, sanitized_filename)
-
-        # Save attachment file
-        with open(path, "wb") as file:
-            file.write(payload)
-
-        imgs = []
-        components = scrap_data_file(path)
-        if 'images' in components:
-            imgs = components.pop('images')
-        base64_payload = get_file_with_payload(path)
-        attachments.append({
-            "filename": sanitized_filename, 
-            "content_type": content_type, 
-            "components": components, 
-            "payload": base64_payload
-        })
-
-        if imgs:
-            for a in imgs:
-                attachments.append(a)
-
-    sender = email.utils.parseaddr(msg.sender)[1]
-    to_recipients = [email.utils.parseaddr(msg.to)[1]] if msg.to else []
-    cc_recipients = [email.utils.parseaddr(msg.cc)[1]] if msg.cc else []
-
-    datetime_combined = msg.date.strftime('%m/%d/%Y %H:%M:%S') if msg.date else ''
-
-    json_data = {
-        "subject": clean_mail(msg.subject),
-        "from": sender,
-        "to": to_recipients,
-        "cc": cc_recipients,
-        "datetime": datetime_combined,
-        "body": clean_mail(msg.body),
-        "attachments": attachments
-    }
-    
+    cleanup_records_folder(recs_path)
     return json_data
 
 def mails_to_json(folder_path):
@@ -307,20 +321,22 @@ def mails_to_json(folder_path):
                 msg = Message(file_path)
                 subject = msg.subject
                 body = msg.body
+                msg.close()
             json_data.append({'subject': clean_mail(subject), 'body': clean_mail(body)})
     return json_data
 
-def delete_folder_contents(folder_path):
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                delete_folder_contents(file_path)
-                os.rmdir(file_path)
-        except Exception as e:
-            raise Exception(f"Failed to delete {file_path}: {str(e)}")
+def cleanup_records_folder(folder_path):
+    if os.path.exists(folder_path):
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    cleanup_records_folder(file_path)
+                    os.rmdir(file_path)
+            except Exception as e:
+                raise Exception(f"Failed to delete {file_path}: {str(e)}")
 
 def get_total_pages(path):
     with open(path, 'rb') as file:
@@ -378,6 +394,8 @@ def extract_tables_from_pdf(path):
             raise Exception(f"Error parsing table: {str(e)}")
         
     # Merge consecutive DataFrames with the same columns
+    nlp = spacy.load(NER_MODEL)
+    
     merged_dfs = []
     buffer_df = dfs[0] if dfs else None
 
@@ -535,7 +553,7 @@ def xlsx_to_dataframes(path):
         df = df[df.notnull().sum(axis=1) > 1]
         df = df.replace(r'^\s*$', np.nan, regex=True).dropna(axis=0, how='all').dropna(axis=1, how='all')
         df.reset_index(drop=True, inplace=True)
-        
+
     return dataframes
 
 def process_sub_df(sub_df):

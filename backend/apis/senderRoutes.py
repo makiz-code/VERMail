@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from config.mongo import get_db
 from config.utils import get_time
 from models.senderModel import Sender
 from config.access import role_required
-from flask_jwt_extended import jwt_required
 
 sender_bp = Blueprint('sender_bp', __name__)
 db = get_db()

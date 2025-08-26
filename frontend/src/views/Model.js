@@ -18,8 +18,8 @@ import { horizontalBarOptions } from "../utils/ChartOptions";
 import { getData } from "../utils/ChartData";
 
 const numEpochsValues = {
-  min: 2,
-  default: 3,
+  min: 3,
+  default: 4,
   max: 5,
 };
 
@@ -36,9 +36,9 @@ const maxLenValues = {
 };
 
 const learningRateValues = {
-  min: 2e-5,
-  default: 5e-5,
-  max: 5e-4,
+  min: 1e-5,
+  default: 2e-5,
+  max: 5e-5,
 };
 
 const initialState = {

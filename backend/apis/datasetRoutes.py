@@ -1,12 +1,17 @@
 import os
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from config.mongo import get_db
 from config.utils import get_time
 from config.access import role_required
-from flask_jwt_extended import jwt_required
+from libs.MailKit import cleanup_records_folder
+from libs.VERData import init_sentence, init_pipes, get_files, filter_by_topics
+from libs.VERData import data_extraction, data_cleaning, data_labeling, data_reduction, data_augmentation
 
 dataset_bp = Blueprint('dataset_bp', __name__)
 db = get_db()
+
+upload_path = "backend/data/uploads"
 
 @dataset_bp.route("/", methods=["POST"])
 @jwt_required()
@@ -30,12 +35,11 @@ def uploadFile():
                 }
             })
 
-        save_folder = "backend/data/uploads"
-        path = os.path.join(save_folder, file.filename)
+        os.makedirs(upload_path, exist_ok=True)
+        path = os.path.join(upload_path, file.filename)
 
         file.save(path)
-
-        from libs.VERData import data_extraction
+    
         result = data_extraction(path, path)
         if result == True:
             return jsonify({
@@ -86,12 +90,15 @@ def uploadFiles():
         src_path = "backend/data/uploads/mails"
         dest_path = "backend/data/uploads/eml-auto-data.csv"
 
+        os.makedirs(src_path, exist_ok=True)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
         for file in files:
             if file.filename != "":
                 file.save(os.path.join(src_path, file.filename))
 
-        from libs.VERData import data_extraction
         result = data_extraction(src_path, dest_path)
+        cleanup_records_folder(src_path)
         if result == True:
             return jsonify({
                 'notif': {
@@ -112,14 +119,14 @@ def uploadFiles():
 @jwt_required()
 @role_required('BusiAdmin')
 def getFiles():
-    folder_path = "backend/data/uploads"
+    os.makedirs(upload_path, exist_ok=True)
+
     files = []
-    if os.path.exists(folder_path) and os.path.isdir(folder_path):
-        dir_files = os.listdir(folder_path)
-        filenames = [file for file in dir_files if os.path.isfile(os.path.join(folder_path, file))]
+    if os.path.exists(upload_path) and os.path.isdir(upload_path):
+        dir_files = os.listdir(upload_path)
+        filenames = [file for file in dir_files if os.path.isfile(os.path.join(upload_path, file))]
         if filenames:
-            from libs.VERData import get_files
-            files = [get_files(os.path.join(folder_path,filename)) for filename in filenames]
+            files = [get_files(os.path.join(upload_path,filename)) for filename in filenames]
         return jsonify({
             'notif': {
                 'type': "success",
@@ -140,8 +147,8 @@ def getFiles():
 @role_required('BusiAdmin')
 def deleteFile(filename):
     try:
-        save_folder = "backend/data/uploads"
-        path = os.path.join(save_folder, filename)
+        os.makedirs(upload_path, exist_ok=True)
+        path = os.path.join(upload_path, filename)
 
         if os.path.exists(path):
             os.remove(path)
@@ -172,10 +179,11 @@ def deleteFile(filename):
 @role_required('BusiAdmin')
 def cleanDataset(filename):
     try:
-        save_folder = "backend/data/uploads"
-        path = os.path.join(save_folder, filename)
-        from libs.VERData import data_cleaning, filter_by_topics
-        result = data_cleaning(path)
+        os.makedirs(upload_path, exist_ok=True)
+        path = os.path.join(upload_path, filename)
+
+        sentence = init_sentence()
+        result = data_cleaning(sentence, path)
         if result == True:
             topics_cursor = db.topics.find({"state": True}, {"name": 1})
             topics = [topic["name"] for topic in topics_cursor]
@@ -212,11 +220,10 @@ def cleanDataset(filename):
 @role_required('BusiAdmin')
 def labelDataset(filename):
     try:
-        save_folder = "backend/data/uploads"
-        path = os.path.join(save_folder, filename)
+        os.makedirs(upload_path, exist_ok=True)
+        path = os.path.join(upload_path, filename)
         json_data = request.json
 
-        from libs.VERData import data_labeling
         result = data_labeling(path, json_data=json_data)
         if result == True:
             return jsonify({
@@ -246,19 +253,19 @@ def labelDataset(filename):
 @role_required('BusiAdmin')
 def transformDataset(filename):
     try:
-        save_folder = "backend/data/uploads"
-        path = os.path.join(save_folder, filename)
+        os.makedirs(upload_path, exist_ok=True)
+        path = os.path.join(upload_path, filename)
 
         actions = {}
         action_cursor = db.topics.find({"state": True}, {"name": 1, "desc": 1})
         for item in action_cursor:
             actions[item["name"]] = item["desc"]
 
-        from libs.VERData import data_reduction, data_augmentation
-        condition = data_reduction(path, actions)
-
+        sentence = init_sentence()
+        condition = data_reduction(sentence, path, actions)
         if condition == True:
-            condition, data, stats = data_augmentation(path)
+            tokenizer, model = init_pipes()
+            condition, data, stats = data_augmentation(tokenizer, model, path)
             if condition == True:
                 result = db.dataset.insert_many(data)
                 if result.inserted_ids:

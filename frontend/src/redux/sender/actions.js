@@ -28,7 +28,7 @@ export const addSenderAsync = (Sender) => async (dispatch) => {
   try {
     const resp = await apiClient.post("/", Sender);
     dispatch(addSender(resp.data));
-    dispatch(getSendersAsync());
+    await dispatch(getSendersAsync());
   } catch (err) {
     console.log(err);
   }
@@ -56,7 +56,7 @@ export const updateSenderAsync = (id, Sender) => async (dispatch) => {
   try {
     const resp = await apiClient.put(`/${id}`, Sender);
     dispatch(updateSender(resp.data));
-    dispatch(getSendersAsync());
+    await dispatch(getSendersAsync());
   } catch (err) {
     console.log(err);
   }
@@ -66,7 +66,7 @@ export const deleteSenderAsync = (id) => async (dispatch) => {
   try {
     const resp = await apiClient.delete(`/${id}`);
     dispatch(deleteSender(resp.data));
-    dispatch(getSendersAsync());
+    await dispatch(getSendersAsync());
   } catch (err) {
     console.log(err);
   }

@@ -1,10 +1,10 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from config.mongo import get_db
 from config.utils import get_time
 from models.topicModel import Topic
 from config.access import role_required
-from flask_jwt_extended import jwt_required
 
 topic_bp = Blueprint('topic_bp', __name__)
 db = get_db()
@@ -95,14 +95,6 @@ def updateTopic(id):
                 'notif': {
                     'type': "danger",
                     'msg': f"Failed to update topic: Name <b data-time='{get_time()}'>{new_name}</b> already exists", 
-                }
-            })
-        
-        elif existing_topic and str(existing_topic['_id']) == id:
-            return jsonify({
-                'notif': {
-                    'type': "warning",
-                    'msg': f"Unable to update topic: <b data-time='{get_time()}'></b>No changes were made to the topic", 
                 }
             })
         

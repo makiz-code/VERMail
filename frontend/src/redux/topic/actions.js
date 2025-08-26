@@ -28,7 +28,7 @@ export const addTopicAsync = (Topic) => async (dispatch) => {
   try {
     const resp = await apiClient.post("/", Topic);
     dispatch(addTopic(resp.data));
-    dispatch(getTopicsAsync());
+    await dispatch(getTopicsAsync());
   } catch (err) {
     console.log(err);
   }
@@ -56,7 +56,7 @@ export const updateTopicAsync = (id, Topic) => async (dispatch) => {
   try {
     const resp = await apiClient.put(`/${id}`, Topic);
     dispatch(updateTopic(resp.data));
-    dispatch(getTopicsAsync());
+    await dispatch(getTopicsAsync());
   } catch (err) {
     console.log(err);
   }
@@ -66,7 +66,7 @@ export const deleteTopicAsync = (id) => async (dispatch) => {
   try {
     const resp = await apiClient.delete(`/${id}`);
     dispatch(deleteTopic(resp.data));
-    dispatch(getTopicsAsync());
+    await dispatch(getTopicsAsync());
   } catch (err) {
     console.log(err);
   }

@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from werkzeug.security import check_password_hash, generate_password_hash
 from models.accountModel import Account
 from config.mongo import get_db
 from config.utils import get_time
 from config.access import role_required
-from flask_jwt_extended import jwt_required
+
 
 account_bp = Blueprint('account_bp', __name__)
 db = get_db()

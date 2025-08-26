@@ -1,8 +1,10 @@
+import os
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from config.mongo import get_db
 from config.utils import get_time
 from config.access import role_required
-from flask_jwt_extended import jwt_required
+from libs.VERMod import get_device, init_tokenizer, data_preparation, training_process, get_metrics, reset_model
 
 model_bp = Blueprint('model_bp', __name__)
 db = get_db()
@@ -16,7 +18,6 @@ def getDataset():
         rows = list(db.dataset.find({'topic': {'$in': topic_names}}, {'_id': 0}))
         
         if rows:
-            from libs.VERMod import data_preparation, get_device
             stats = data_preparation(rows)
             device = get_device()
             return jsonify({
@@ -75,9 +76,9 @@ def trainModel():
     for row in db.dataset.find({'topic': {'$in': topic_names}}, {'_id': 0}):
         rows.append(row)
 
-    from libs.VERMod import training_process
     try:
-        best_metrics = training_process(rows, num_epochs, batch_size, max_len, learning_rate)
+        tokenizer = init_tokenizer()
+        best_metrics = training_process(tokenizer, rows, num_epochs, batch_size, max_len, learning_rate)
         return jsonify({
             'notif': {
                 'type': "success",
@@ -97,7 +98,6 @@ def trainModel():
 @jwt_required()
 @role_required('BusiAdmin')
 def getMetrics():
-    from libs.VERMod import get_metrics
     best_metrics = get_metrics()
     if best_metrics:
         return jsonify({
@@ -115,7 +115,6 @@ def getMetrics():
 @jwt_required()
 @role_required('BusiAdmin')
 def resetModel():
-    from libs.VERMod import reset_model
     result = reset_model("backend/data/models")
     if result:
         return jsonify({

@@ -95,21 +95,46 @@ function Dashboard() {
   const dispatch = useDispatch();
 
   const lastParseRef = useRef(0);
+  const isParsingRef = useRef(false);
+  const queuedRef = useRef(false);
 
-  const parseEmailsThrottled = () => {
+  const parseEmailsThrottled = async () => {
     const now = Date.now();
-    if (now - lastParseRef.current >= 5000) {
-      dispatch(parseEmailsAsync());
-      lastParseRef.current = now;
+
+    if (isParsingRef.current) {
+      // If parsing in progress, mark a queued request
+      queuedRef.current = true;
+      return;
+    }
+
+    if (now - lastParseRef.current < 5000) {
+      // Schedule for after the 5s cooldown
+      if (!queuedRef.current) {
+        queuedRef.current = true;
+        setTimeout(() => {
+          queuedRef.current = false;
+          parseEmailsThrottled();
+        }, 5000 - (now - lastParseRef.current));
+      }
+      return;
+    }
+
+    isParsingRef.current = true;
+    lastParseRef.current = now;
+
+    try {
+      await dispatch(parseEmailsAsync());
+    } finally {
+      isParsingRef.current = false;
+      if (queuedRef.current) {
+        queuedRef.current = false;
+        parseEmailsThrottled();
+      }
     }
   };
 
   useEffect(() => {
     parseEmailsThrottled();
-    const interval = setInterval(() => {
-      parseEmailsThrottled();
-    }, 1000);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {

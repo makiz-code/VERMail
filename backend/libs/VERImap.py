@@ -2,32 +2,37 @@ import threading
 import imaplib
 import email
 import json
+import os
 from datetime import datetime
 import torch
 import warnings
-from transformers import BertForSequenceClassification, BertTokenizer, pipeline, logging
-from libs.MailKit import extract_email_data, delete_folder_contents
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelForQuestionAnswering, logging
+from libs.MailKit import extract_email_data
+from config.envs import LLM_MODEL
 
 logging.get_logger("transformers").setLevel(logging.ERROR)
-warnings.filterwarnings("ignore", message="errors='ignore' is deprecated.*")
-warnings.filterwarnings("ignore", message="Downcasting behavior in `replace` is deprecated.*")
-warnings.filterwarnings("ignore", message="`huggingface_hub` cache-system uses symlinks.*")
+warnings.filterwarnings("ignore", category=UserWarning, module=r"transformers.*")
+warnings.filterwarnings("ignore", category=FutureWarning, module=r"huggingface_hub.*")
 
 ## Variables
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-model_path = "backend/data/models/VERModel.pth"
-labels_path = "backend/data/models/labels.json"
-recs_path = "backend/data/records"
+def init_pipes(model_path, labels_path, llm_model=LLM_MODEL):
+    if os.path.exists(model_path) and os.path.exists(labels_path):
+        with open(labels_path, "r") as f:
+            labels = json.load(f)
 
-with open(labels_path, "r") as f:
-    labels  = json.load(f)
-
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=len(labels)).to(device)
-model.load_state_dict(torch.load(model_path))
-qa = pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
+        tokenizer = AutoTokenizer.from_pretrained(llm_model)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            llm_model,
+            num_labels=len(labels)
+        ).to(device)
+        model.load_state_dict(torch.load(model_path))
+        qa = AutoModelForQuestionAnswering.from_pretrained(llm_model).to(device)
+        return tokenizer, model, qa, labels
+    else:
+        return None, None, None, None
 
 ## IMAP Server
 
@@ -117,13 +122,12 @@ def parse_emails(email_list, passkey_list, sender_emails_list, repository_list):
     for thread in threads:
         thread.join()
 
-    delete_folder_contents(recs_path)
-
+    parsed_data.sort(key=lambda x: datetime.strptime(x['datetime'], "%m/%d/%Y %H:%M:%S"), reverse=True)
     return parsed_data
 
 ## Email Classification
 
-def get_probs(subject, body, labels=labels, model=model, tokenizer=tokenizer):
+def get_probs(tokenizer, model, subject, body, labels):
     inputs = tokenizer(subject, body, return_tensors='pt', truncation=True).to(device)  
     outputs = model(**inputs)
         
@@ -147,12 +151,12 @@ def get_actions(probs, threshold=0.65, delta=0.05):
     
     return final_actions
 
-def classify_emails(parsed_data):
+def classify_emails(tokenizer, model, parsed_data, labels):
     predicted_data = []
     for data in parsed_data:
         if 'intentions' in data:
             data.pop('intentions')
-        probs = get_probs(data['subject'], data['body'])
+        probs = get_probs(tokenizer, model, data['subject'], data['body'], labels)
         if probs:  
             actions = get_actions(probs)
             if actions:
@@ -164,7 +168,7 @@ def classify_emails(parsed_data):
 
 ## Information Extraction
 
-def get_answer(query, context, threshold=0.5):
+def get_answer(qa, query, context, threshold=0.5):
     result = qa(question=query, context=context)
     answer = None
     if threshold:
@@ -190,7 +194,7 @@ def get_context(data):
     context = json.dumps(body)
     return context
 
-def extract_fields(predicted_data, topic_fields):
+def extract_fields(qa, predicted_data, topic_fields):
     extracted_data = []
     for data in predicted_data:
         intents = []
@@ -200,7 +204,7 @@ def extract_fields(predicted_data, topic_fields):
                 json_data = {}
                 queries = topic_fields[intent['action']['value']]
                 for field, query in queries.items():
-                    json_data[field] = get_answer(query, context)
+                    json_data[field] = get_answer(qa, query, context)
                 intent['fields'] = json_data
                 intents.append(intent)
             data['intentions'] = intents
@@ -238,7 +242,7 @@ def define_state(extracted_data):
 
 ## MailBot Pipeline
 
-def get_emails(params):
+def get_emails(tokenizer, model, qa, labels, params):
     # Parse emails
     parsed_data = parse_emails(
         params['email_list'],
@@ -248,10 +252,10 @@ def get_emails(params):
     )
 
     # Classify parsed emails
-    predicted_data = classify_emails(parsed_data)
+    predicted_data = classify_emails(tokenizer, model, parsed_data, labels)
 
     # Extract fields based on topics
-    extracted_data = extract_fields(predicted_data, params['topic_fields'])
+    extracted_data = extract_fields(qa, predicted_data, params['topic_fields'])
 
     # Define the final state
     final_data = define_state(extracted_data)
