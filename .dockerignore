@@ -1,31 +1,31 @@
 **/__pycache__/
 
 # dependencies
-frontend/node_modules/
-frontend/.pnp
-frontend/.pnp.js
+client/node_modules/
+client/.pnp
+client/.pnp.js
 
-backend/.venv
-backend/src/data/uploads
-backend/src/data/records
-backend/src/data/models
+server/.venv
+server/src/data/uploads
+server/src/data/records
+server/src/data/models
 
 # Environment files
 **/.env
 
 # testing
-frontend/coverage
+client/coverage
 
 # production
-frontend/build
+client/build
 
 # misc
-frontend/.DS_Store
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
+client/.DS_Store
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
 
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
