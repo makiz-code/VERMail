@@ -1,6 +1,6 @@
 .PHONY: env server client start stop
 
-# Build Env
+# --- Build Env ---
 env:
 ifeq ($(OS),Windows_NT)
 	python -m venv server/.venv
@@ -16,7 +16,7 @@ else
 	cd client && npm install && cd ..
 endif
 
-# Run Server
+# --- Run Server ---
 server:
 ifeq ($(OS),Windows_NT)
 	cmd.exe /C start "" powershell -NoExit -Command "$$host.UI.RawUI.WindowTitle = 'SERVER'; Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\\server\\.venv\\Scripts\\Activate.ps1; python server/src/app.py"
@@ -25,7 +25,7 @@ else
 	osascript -e 'tell app "Terminal" to do script \"server/.venv/bin/python server/src/app.py\"'
 endif
 
-# Run Client
+# --- Run Client ---
 client:
 ifeq ($(OS),Windows_NT)
 	cmd.exe /C start "" powershell -NoExit -Command "$$host.UI.RawUI.WindowTitle = 'CLIENT'; npm --prefix ./client start"
@@ -34,12 +34,12 @@ else
 	osascript -e 'tell app "Terminal" to do script \"npm --prefix ./client start\"'
 endif
 
-# Run Both
+# --- Run Both ---
 start: 
 	$(MAKE) server 
 	$(MAKE) client
 
-# Stop Both
+# --- Stop Both ---
 stop:
 ifeq ($(OS),Windows_NT)
 	-@taskkill /F /IM python.exe >nul 2>&1
