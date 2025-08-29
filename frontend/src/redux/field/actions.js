@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const addFieldAsync = (Field) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Field);
+    const resp = await apiClient.post('/', Field);
     dispatch(addField(resp.data));
     await dispatch(getFieldsAsync());
   } catch (err) {
@@ -36,7 +36,7 @@ export const addFieldAsync = (Field) => async (dispatch) => {
 
 export const getFieldsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getFields(resp.data));
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ export const getFieldsAsync = () => async (dispatch) => {
 
 export const getFieldAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.get(`/${id}`);
+    const resp = await apiClient.get(`/${id}/`);
     dispatch(getField(resp.data));
   } catch (err) {
     console.log(err);
@@ -54,7 +54,7 @@ export const getFieldAsync = (id) => async (dispatch) => {
 
 export const updateFieldAsync = (id, Field) => async (dispatch) => {
   try {
-    const resp = await apiClient.put(`/${id}`, Field);
+    const resp = await apiClient.put(`/${id}/`, Field);
     dispatch(updateField(resp.data));
     await dispatch(getFieldsAsync());
   } catch (err) {
@@ -64,7 +64,7 @@ export const updateFieldAsync = (id, Field) => async (dispatch) => {
 
 export const deleteFieldAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.delete(`/${id}`);
+    const resp = await apiClient.delete(`/${id}/`);
     dispatch(deleteField(resp.data));
     await dispatch(getFieldsAsync());
   } catch (err) {

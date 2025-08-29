@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const addAccountAsync = (Account) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Account);
+    const resp = await apiClient.post('/', Account);
     dispatch(addAccount(resp.data));
     await dispatch(getAccountsAsync());
   } catch (err) {
@@ -36,7 +36,7 @@ export const addAccountAsync = (Account) => async (dispatch) => {
 
 export const getAccountsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getAccounts(resp.data));
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ export const getAccountsAsync = () => async (dispatch) => {
 
 export const getAccountAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.get(`/${id}`);
+    const resp = await apiClient.get(`/${id}/`);
     dispatch(getAccount(resp.data));
   } catch (err) {
     console.log(err);
@@ -54,7 +54,7 @@ export const getAccountAsync = (id) => async (dispatch) => {
 
 export const updateAccountAsync = (id, Account) => async (dispatch) => {
   try {
-    const resp = await apiClient.put(`/${id}`, Account);
+    const resp = await apiClient.put(`/${id}/`, Account);
     dispatch(updateAccount(resp.data));
     await dispatch(getAccountsAsync());
   } catch (err) {
@@ -64,7 +64,7 @@ export const updateAccountAsync = (id, Account) => async (dispatch) => {
 
 export const deleteAccountAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.delete(`/${id}`);
+    const resp = await apiClient.delete(`/${id}/`);
     dispatch(deleteAccount(resp.data));
     await dispatch(getAccountsAsync());
   } catch (err) {

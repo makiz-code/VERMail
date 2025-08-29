@@ -69,7 +69,7 @@ def getSenders():
         'data': senders
     })
 
-@sender_bp.route('/<id>', methods=['GET'])
+@sender_bp.route('/<id>/', methods=['GET'])
 @jwt_required()
 @role_required('TechAdmin')
 def getSender(id):
@@ -87,7 +87,7 @@ def getSender(id):
             }
         })
     
-@sender_bp.route('/<id>', methods=['PUT'])
+@sender_bp.route('/<id>/', methods=['PUT'])
 @jwt_required()
 @role_required('TechAdmin')
 def updateSender(id):
@@ -142,7 +142,7 @@ def updateSender(id):
             }
         })
         
-@sender_bp.route('/<id>', methods=['DELETE'])
+@sender_bp.route('/<id>/', methods=['DELETE'])
 @jwt_required()
 @role_required('TechAdmin')
 def deleteSender(id):

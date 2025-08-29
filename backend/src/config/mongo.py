@@ -2,16 +2,14 @@ from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
 from config.envs import MONGO_URI, MONGO_DB, ADMIN_USERNAME, ADMIN_PASSWORD
 
-full_mongo_uri = f"{MONGO_URI}{MONGO_DB}"
-
 def get_db():
-    if not full_mongo_uri:
+    if not MONGO_URI:
         raise ValueError(f"Database '{MONGO_DB}' is not configured.")
-    client = MongoClient(full_mongo_uri)
+    client = MongoClient(MONGO_URI)
     return client[MONGO_DB]
 
 def conf_db(app):
-    app.config[f'MONGO_URI_{MONGO_DB.upper()}'] = full_mongo_uri
+    app.config[f'MONGO_URI_{MONGO_DB.upper()}'] = MONGO_URI
 
 def init_superadmin():
     db = get_db()
@@ -26,4 +24,3 @@ def init_superadmin():
             "state": True
         }
         db.accounts.insert_one(superadmin)
-        print(f" * SuperAdmin '{ADMIN_USERNAME}' has been created.")

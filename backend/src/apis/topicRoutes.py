@@ -60,7 +60,7 @@ def getTopics():
         'data': topics
     })
 
-@topic_bp.route('/<id>', methods=['GET'])
+@topic_bp.route('/<id>/', methods=['GET'])
 @jwt_required()
 @role_required('BusiAdmin')
 def getTopic(id):
@@ -78,7 +78,7 @@ def getTopic(id):
             }
         })
     
-@topic_bp.route('/<id>', methods=['PUT'])
+@topic_bp.route('/<id>/', methods=['PUT'])
 @jwt_required()
 @role_required('BusiAdmin')
 def updateTopic(id):
@@ -129,7 +129,7 @@ def updateTopic(id):
             }
         })
         
-@topic_bp.route('/<id>', methods=['DELETE'])
+@topic_bp.route('/<id>/', methods=['DELETE'])
 @jwt_required()
 @role_required('BusiAdmin')
 def deleteTopic(id):

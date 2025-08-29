@@ -19,11 +19,10 @@ endif
 # Run Backend Server
 backend:
 ifeq ($(OS),Windows_NT)
-	cmd.exe /C start "" powershell -NoExit -Command "$$host.UI.RawUI.WindowTitle = 'BACKEND'; Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\\backend\\.venv\\Scripts\\Activate.ps1; python backend/app.py"
+	cmd.exe /C start "" powershell -NoExit -Command "$$host.UI.RawUI.WindowTitle = 'BACKEND'; Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\\backend\\.venv\\Scripts\\Activate.ps1; python backend/src/app.py"
 else
-	# Start backend in new terminal to mimic Windows behavior
-	gnome-terminal -- bash -c "backend/.venv/bin/python backend/app.py; exec bash" || \
-	osascript -e 'tell app "Terminal" to do script \"backend/.venv/bin/python backend/app.py\"'
+	gnome-terminal -- bash -c "backend/.venv/bin/python backend/src/app.py; exec bash" || \
+	osascript -e 'tell app "Terminal" to do script \"backend/.venv/bin/python backend/src/app.py\"'
 endif
 
 # Run Frontend Server
@@ -45,9 +44,9 @@ stop:
 ifeq ($(OS),Windows_NT)
 	-@taskkill /F /IM python.exe >nul 2>&1
 	-@taskkill /F /IM node.exe >nul 2>&1
-	-@taskkill /FI "WINDOWTITLE eq BACKEND*" /F >nul 2>&1
-	-@taskkill /FI "WINDOWTITLE eq FRONTEND*" /F >nul 2>&1
+	-@taskkill /FI "WINDOWTITLE eq BACKEND*"
+	-@taskkill /FI "WINDOWTITLE eq FRONTEND*"
 else
-	-pkill -f "python backend/app.py" || true
-	-pkill -f "npm --prefix ./frontend start" || true
+	-pkill -f "python backend/src/app.py"
+	-pkill -f "npm --prefix ./frontend start"
 endif

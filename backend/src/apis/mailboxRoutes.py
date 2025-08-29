@@ -60,7 +60,7 @@ def getMailboxes():
         'data': mailboxes
     })
 
-@mailbox_bp.route('/<id>', methods=['GET'])
+@mailbox_bp.route('/<id>/', methods=['GET'])
 @jwt_required()
 @role_required('TechAdmin')
 def getMailbox(id):
@@ -78,7 +78,7 @@ def getMailbox(id):
             }
         })
     
-@mailbox_bp.route('/<id>', methods=['PUT'])
+@mailbox_bp.route('/<id>/', methods=['PUT'])
 @jwt_required()
 @role_required('TechAdmin')
 def updateMailbox(id):
@@ -129,7 +129,7 @@ def updateMailbox(id):
             }
         })
         
-@mailbox_bp.route('/<id>', methods=['DELETE'])
+@mailbox_bp.route('/<id>/', methods=['DELETE'])
 @jwt_required()
 @role_required('TechAdmin')
 def deleteMailbox(id):

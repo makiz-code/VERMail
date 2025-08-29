@@ -25,7 +25,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const parseEmailsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", null);
+    const resp = await apiClient.post('/', null);
     dispatch(parseEmails(resp.data));
     await dispatch(getEmailsAsync());
   } catch (err) {
@@ -35,7 +35,7 @@ export const parseEmailsAsync = () => async (dispatch) => {
 
 export const getEmailsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getEmails(resp.data));
   } catch (err) {
     console.log(err);
@@ -44,7 +44,7 @@ export const getEmailsAsync = () => async (dispatch) => {
 
 export const validateEmailAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.put(`/${id}`, null);
+    const resp = await apiClient.put(`/${id}/`, null);
     dispatch(validateEmail(resp.data));
     await dispatch(getEmailsAsync());
   } catch (err) {
@@ -54,7 +54,7 @@ export const validateEmailAsync = (id) => async (dispatch) => {
 
 export const downloadFileAsync = (params) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/download/", params, {
+    const resp = await apiClient.post('/download/', params, {
       responseType: "blob",
     });
     dispatch(downloadFile(resp.data));

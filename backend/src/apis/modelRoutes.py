@@ -1,4 +1,3 @@
-import os
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from config.mongo import get_db
@@ -9,7 +8,7 @@ from libs.VERMod import get_device, init_tokenizer, data_preparation, training_p
 model_bp = Blueprint('model_bp', __name__)
 db = get_db()
 
-@model_bp.route("/dataset", methods=["GET"])
+@model_bp.route('/dataset/', methods=["GET"])
 @jwt_required()
 @role_required('BusiAdmin')
 def getDataset():
@@ -41,7 +40,7 @@ def getDataset():
             }
         })
 
-@model_bp.route("/dataset", methods=["DELETE"])
+@model_bp.route('/dataset/', methods=["DELETE"])
 @jwt_required()
 @role_required('BusiAdmin')
 def dropDataset():
@@ -61,7 +60,7 @@ def dropDataset():
             }
         })
 
-@model_bp.route("/", methods=["POST"])
+@model_bp.route('/', methods=["POST"])
 @jwt_required()
 @role_required('BusiAdmin')
 def trainModel():
@@ -94,7 +93,7 @@ def trainModel():
             }
         })
 
-@model_bp.route("/", methods=["GET"])
+@model_bp.route('/', methods=["GET"])
 @jwt_required()
 @role_required('BusiAdmin')
 def getMetrics():
@@ -111,11 +110,11 @@ def getMetrics():
             },
         })
 
-@model_bp.route("/", methods=["DELETE"])
+@model_bp.route('/', methods=["DELETE"])
 @jwt_required()
 @role_required('BusiAdmin')
 def resetModel():
-    result = reset_model("backend/data/models")
+    result = reset_model("backend/src/data/models")
     if result:
         return jsonify({
             'notif': {

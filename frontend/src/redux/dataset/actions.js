@@ -28,7 +28,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const uploadFileAsync = (Dataset) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Dataset, {
+    const resp = await apiClient.post('/', Dataset, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     dispatch(uploadFile(resp.data));
@@ -40,7 +40,7 @@ export const uploadFileAsync = (Dataset) => async (dispatch) => {
 
 export const uploadFilesAsync = (Dataset) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/files", Dataset, {
+    const resp = await apiClient.post('/files/', Dataset, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     dispatch(uploadFiles(resp.data));
@@ -52,7 +52,7 @@ export const uploadFilesAsync = (Dataset) => async (dispatch) => {
 
 export const getFilesAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getFiles(resp.data));
   } catch (err) {
     console.log(err);
@@ -61,7 +61,7 @@ export const getFilesAsync = () => async (dispatch) => {
 
 export const deleteFileAsync = (filename) => async (dispatch) => {
   try {
-    const resp = await apiClient.delete(`/${filename}`);
+    const resp = await apiClient.delete(`/${filename}/`);
     dispatch(deleteFile(resp.data));
     await dispatch(getFilesAsync());
   } catch (err) {
@@ -71,7 +71,7 @@ export const deleteFileAsync = (filename) => async (dispatch) => {
 
 export const cleanDatasetAsync = (filename) => async (dispatch) => {
   try {
-    const resp = await apiClient.post(`/clean/${filename}`, null);
+    const resp = await apiClient.post(`/clean/${filename}/`, null);
     dispatch(cleanDataset(resp.data));
     await dispatch(getFilesAsync());
   } catch (err) {
@@ -81,7 +81,7 @@ export const cleanDatasetAsync = (filename) => async (dispatch) => {
 
 export const labelDatasetAsync = (filename, JsonData) => async (dispatch) => {
   try {
-    const resp = await apiClient.post(`/label/${filename}`, JsonData);
+    const resp = await apiClient.post(`/label/${filename}/`, JsonData);
     dispatch(labelDataset(resp.data));
     await dispatch(getFilesAsync());
   } catch (err) {
@@ -91,7 +91,7 @@ export const labelDatasetAsync = (filename, JsonData) => async (dispatch) => {
 
 export const transformDatasetAsync = (filename) => async (dispatch) => {
   try {
-    const resp = await apiClient.post(`/transform/${filename}`, null);
+    const resp = await apiClient.post(`/transform/${filename}/`, null);
     dispatch(transformDataset(resp.data));
     await dispatch(getFilesAsync());
   } catch (err) {

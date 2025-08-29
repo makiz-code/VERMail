@@ -11,9 +11,9 @@ from libs.VERData import data_extraction, data_cleaning, data_labeling, data_red
 dataset_bp = Blueprint('dataset_bp', __name__)
 db = get_db()
 
-upload_path = "backend/data/uploads"
+upload_path = "backend/src/data/uploads"
 
-@dataset_bp.route("/", methods=["POST"])
+@dataset_bp.route('/', methods=["POST"])
 @jwt_required()
 @role_required('BusiAdmin')
 def uploadFile():
@@ -65,7 +65,7 @@ def uploadFile():
                 }
             })
 
-@dataset_bp.route("/files", methods=["POST"])
+@dataset_bp.route('/files/', methods=["POST"])
 @jwt_required()
 @role_required('BusiAdmin')
 def uploadFiles():
@@ -87,8 +87,8 @@ def uploadFiles():
                 }
             })
 
-        src_path = "backend/data/uploads/mails"
-        dest_path = "backend/data/uploads/eml-auto-data.csv"
+        src_path = "backend/src/data/uploads/mails"
+        dest_path = "backend/src/data/uploads/eml-auto-data.csv"
 
         os.makedirs(src_path, exist_ok=True)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
@@ -115,7 +115,7 @@ def uploadFiles():
                 }
             })
 
-@dataset_bp.route("/", methods=["GET"])
+@dataset_bp.route('/', methods=["GET"])
 @jwt_required()
 @role_required('BusiAdmin')
 def getFiles():
@@ -142,7 +142,7 @@ def getFiles():
             }
         })
 
-@dataset_bp.route("/<filename>", methods=["DELETE"])
+@dataset_bp.route('/<filename>/', methods=["DELETE"])
 @jwt_required()
 @role_required('BusiAdmin')
 def deleteFile(filename):
@@ -174,7 +174,7 @@ def deleteFile(filename):
             }
         })
 
-@dataset_bp.route("/clean/<filename>", methods=["POST"])
+@dataset_bp.route('/clean/<filename>/', methods=["POST"])
 @jwt_required()
 @role_required('BusiAdmin')
 def cleanDataset(filename):
@@ -215,7 +215,7 @@ def cleanDataset(filename):
             }
         })
 
-@dataset_bp.route("/label/<filename>", methods=["POST"])
+@dataset_bp.route('/label/<filename>/', methods=["POST"])
 @jwt_required()
 @role_required('BusiAdmin')
 def labelDataset(filename):
@@ -248,7 +248,7 @@ def labelDataset(filename):
             }
         })
     
-@dataset_bp.route("/transform/<filename>", methods=["POST"])
+@dataset_bp.route('/transform/<filename>/', methods=["POST"])
 @jwt_required()
 @role_required('BusiAdmin')
 def transformDataset(filename):

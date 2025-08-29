@@ -10,7 +10,7 @@ from apis.dashboardRoutes import dashboard_bp
 from apis.accountRoutes import account_bp
 from apis.loginRoutes import login_bp
 from config.mongo import conf_db, init_superadmin
-from config.envs import SECRET_KEY, CORS_ORIGIN, API_PORT
+from config.envs import SECRET_KEY, CORS_ORIGIN
 from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
@@ -38,4 +38,4 @@ conf_db(app)
 init_superadmin()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=API_PORT)
+    app.run(debug=True, host='0.0.0.0')

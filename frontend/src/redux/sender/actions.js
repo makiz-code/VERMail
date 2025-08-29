@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const addSenderAsync = (Sender) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Sender);
+    const resp = await apiClient.post('/', Sender);
     dispatch(addSender(resp.data));
     await dispatch(getSendersAsync());
   } catch (err) {
@@ -36,7 +36,7 @@ export const addSenderAsync = (Sender) => async (dispatch) => {
 
 export const getSendersAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getSenders(resp.data));
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ export const getSendersAsync = () => async (dispatch) => {
 
 export const getSenderAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.get(`/${id}`);
+    const resp = await apiClient.get(`/${id}/`);
     dispatch(getSender(resp.data));
   } catch (err) {
     console.log(err);
@@ -54,7 +54,7 @@ export const getSenderAsync = (id) => async (dispatch) => {
 
 export const updateSenderAsync = (id, Sender) => async (dispatch) => {
   try {
-    const resp = await apiClient.put(`/${id}`, Sender);
+    const resp = await apiClient.put(`/${id}/`, Sender);
     dispatch(updateSender(resp.data));
     await dispatch(getSendersAsync());
   } catch (err) {
@@ -64,7 +64,7 @@ export const updateSenderAsync = (id, Sender) => async (dispatch) => {
 
 export const deleteSenderAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.delete(`/${id}`);
+    const resp = await apiClient.delete(`/${id}/`);
     dispatch(deleteSender(resp.data));
     await dispatch(getSendersAsync());
   } catch (err) {

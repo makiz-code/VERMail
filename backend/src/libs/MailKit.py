@@ -12,7 +12,6 @@ import base64
 import os
 import re
 import string
-import shutil
 import warnings
 from pdf2image import convert_from_path
 from extract_msg import Message
@@ -28,7 +27,7 @@ pd.set_option('future.no_silent_downcasting', True)
 
 punctuation_list = re.escape(string.punctuation)
 
-recs_path = "backend/data/records"
+recs_path = "backend/src/data/records"
 
 def clean_text(text):
     text = re.sub(r'\s*\n+\s*', '\u7102', text)

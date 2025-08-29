@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const getDatasetAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/dataset");
+    const resp = await apiClient.get('/dataset/');
     dispatch(getDataset(resp.data));
   } catch (err) {
     console.log(err);
@@ -35,7 +35,7 @@ export const getDatasetAsync = () => async (dispatch) => {
 
 export const dropDatasetAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.delete("/dataset");
+    const resp = await apiClient.delete('/dataset/');
     dispatch(dropDataset(resp.data));
   } catch (err) {
     console.log(err);
@@ -44,7 +44,7 @@ export const dropDatasetAsync = () => async (dispatch) => {
 
 export const trainModelAsync = (Params) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Params);
+    const resp = await apiClient.post('/', Params);
     dispatch(trainModel(resp.data));
   } catch (err) {
     console.log(err);
@@ -53,7 +53,7 @@ export const trainModelAsync = (Params) => async (dispatch) => {
 
 export const getMetricsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getMetrics(resp.data));
   } catch (err) {
     console.log(err);
@@ -62,7 +62,7 @@ export const getMetricsAsync = () => async (dispatch) => {
 
 export const resetModelAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.delete("/");
+    const resp = await apiClient.delete('/');
     dispatch(resetModel(resp.data));
   } catch (err) {
     console.log(err);

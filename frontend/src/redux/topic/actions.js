@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const addTopicAsync = (Topic) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Topic);
+    const resp = await apiClient.post('/', Topic);
     dispatch(addTopic(resp.data));
     await dispatch(getTopicsAsync());
   } catch (err) {
@@ -36,7 +36,7 @@ export const addTopicAsync = (Topic) => async (dispatch) => {
 
 export const getTopicsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getTopics(resp.data));
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ export const getTopicsAsync = () => async (dispatch) => {
 
 export const getTopicAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.get(`/${id}`);
+    const resp = await apiClient.get(`/${id}/`);
     dispatch(getTopic(resp.data));
   } catch (err) {
     console.log(err);
@@ -54,7 +54,7 @@ export const getTopicAsync = (id) => async (dispatch) => {
 
 export const updateTopicAsync = (id, Topic) => async (dispatch) => {
   try {
-    const resp = await apiClient.put(`/${id}`, Topic);
+    const resp = await apiClient.put(`/${id}/`, Topic);
     dispatch(updateTopic(resp.data));
     await dispatch(getTopicsAsync());
   } catch (err) {
@@ -64,7 +64,7 @@ export const updateTopicAsync = (id, Topic) => async (dispatch) => {
 
 export const deleteTopicAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.delete(`/${id}`);
+    const resp = await apiClient.delete(`/${id}/`);
     dispatch(deleteTopic(resp.data));
     await dispatch(getTopicsAsync());
   } catch (err) {

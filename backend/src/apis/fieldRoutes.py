@@ -79,7 +79,7 @@ def getField(id):
             }
         })
     
-@field_bp.route('/<id>', methods=['PUT'])
+@field_bp.route('/<id>/', methods=['PUT'])
 @jwt_required()
 @role_required('BusiAdmin')
 def updateField(id):
@@ -128,7 +128,7 @@ def updateField(id):
             }
         })
         
-@field_bp.route('/<id>', methods=['DELETE'])
+@field_bp.route('/<id>/', methods=['DELETE'])
 @jwt_required()
 @role_required('BusiAdmin')
 def deleteField(id):

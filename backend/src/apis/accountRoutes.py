@@ -7,7 +7,6 @@ from config.mongo import get_db
 from config.utils import get_time
 from config.access import role_required
 
-
 account_bp = Blueprint('account_bp', __name__)
 db = get_db()
 
@@ -62,7 +61,7 @@ def getAccounts():
     return jsonify({'data': accounts})
 
 
-@account_bp.route('/<id>', methods=['GET'])
+@account_bp.route('/<id>/', methods=['GET'])
 @jwt_required()
 @role_required('SuperAdmin')
 def getAccount(id):
@@ -79,7 +78,7 @@ def getAccount(id):
         })
 
 
-@account_bp.route('/<id>', methods=['PUT'])
+@account_bp.route('/<id>/', methods=['PUT'])
 @jwt_required()
 @role_required('SuperAdmin')
 def updateAccount(id):
@@ -127,7 +126,7 @@ def updateAccount(id):
         })
 
 
-@account_bp.route('/<id>', methods=['DELETE'])
+@account_bp.route('/<id>/', methods=['DELETE'])
 @jwt_required()
 @role_required('SuperAdmin')
 def deleteAccount(id):

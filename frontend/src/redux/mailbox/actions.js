@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const addMailboxAsync = (Mailbox) => async (dispatch) => {
   try {
-    const resp = await apiClient.post("/", Mailbox);
+    const resp = await apiClient.post('/', Mailbox);
     dispatch(addMailbox(resp.data));
     await dispatch(getMailboxesAsync());
   } catch (err) {
@@ -36,7 +36,7 @@ export const addMailboxAsync = (Mailbox) => async (dispatch) => {
 
 export const getMailboxesAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get("/");
+    const resp = await apiClient.get('/');
     dispatch(getMailboxes(resp.data));
   } catch (err) {
     console.log(err);
@@ -45,7 +45,7 @@ export const getMailboxesAsync = () => async (dispatch) => {
 
 export const getMailboxAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.get(`/${id}`);
+    const resp = await apiClient.get(`/${id}/`);
     dispatch(getMailbox(resp.data));
   } catch (err) {
     console.log(err);
@@ -54,7 +54,7 @@ export const getMailboxAsync = (id) => async (dispatch) => {
 
 export const updateMailboxAsync = (id, Mailbox) => async (dispatch) => {
   try {
-    const resp = await apiClient.put(`/${id}`, Mailbox);
+    const resp = await apiClient.put(`/${id}/`, Mailbox);
     dispatch(updateMailbox(resp.data));
     await dispatch(getMailboxesAsync());
   } catch (err) {
@@ -64,7 +64,7 @@ export const updateMailboxAsync = (id, Mailbox) => async (dispatch) => {
 
 export const deleteMailboxAsync = (id) => async (dispatch) => {
   try {
-    const resp = await apiClient.delete(`/${id}`);
+    const resp = await apiClient.delete(`/${id}/`);
     dispatch(deleteMailbox(resp.data));
     await dispatch(getMailboxesAsync());
   } catch (err) {

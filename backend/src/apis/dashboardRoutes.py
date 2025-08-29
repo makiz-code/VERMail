@@ -11,11 +11,11 @@ from libs.MailKit import set_file_with_payload
 dashboard_bp = Blueprint('dashboard_bp', __name__)
 db = get_db()
 
-model_path = "backend/data/models/VERModel.pth"
-labels_path = "backend/data/models/labels.json"
-recs_path = "backend/data/records"
+model_path = "backend/src/data/models/VERModel.pth"
+labels_path = "backend/src/data/models/labels.json"
+recs_path = "backend/src/data/records"
 
-@dashboard_bp.route("/", methods=["POST"])
+@dashboard_bp.route('/', methods=["POST"])
 @jwt_required()
 @role_required('SysUser')
 def parseEmails():
@@ -90,7 +90,7 @@ def parseEmails():
             }
         })
     
-@dashboard_bp.route("/", methods=["GET"])   
+@dashboard_bp.route('/', methods=["GET"])   
 @jwt_required()
 @role_required('SysUser') 
 def getEmails():
@@ -121,7 +121,7 @@ def getEmails():
         })
     
 
-@dashboard_bp.route('/<id>', methods=['PUT'])
+@dashboard_bp.route('/<id>/', methods=['PUT'])
 @jwt_required()
 @role_required('SysUser')
 def validateEmail(id):
