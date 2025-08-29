@@ -19,11 +19,12 @@ services:
     ports:
       - "5000:5000"
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       - mongodb
     volumes:
-      - ./backend:/app/backend
+      - ./backend:/app
+      - ./backend/src/data:/app/src/data
     runtime: nvidia
     deploy:
       resources:
@@ -45,7 +46,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app/frontend
+      - ./frontend:/app
 
 volumes:
   mongo_data:

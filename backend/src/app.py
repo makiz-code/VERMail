@@ -10,17 +10,17 @@ from apis.dashboardRoutes import dashboard_bp
 from apis.accountRoutes import account_bp
 from apis.loginRoutes import login_bp
 from config.mongo import conf_db, init_superadmin
-from config.envs import SECRET_KEY, CORS_ORIGIN
+from config.envs import JWT_SECRET_KEY, FLASK_CORS_ORIGIN
 from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 
-app.config['JWT_SECRET_KEY'] = SECRET_KEY
+app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 jwt = JWTManager(app)
 
 CORS(app, 
     supports_credentials=True, 
-    origins=[CORS_ORIGIN], 
+    origins=[FLASK_CORS_ORIGIN], 
     allow_headers=["Content-Type", "Authorization"])
 
 app.register_blueprint(mailbox_bp, url_prefix='/mailboxes')
@@ -38,4 +38,4 @@ conf_db(app)
 init_superadmin()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

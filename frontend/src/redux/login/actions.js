@@ -5,7 +5,6 @@ const API = "/login";
 
 export const loginAsync = (credentials) => async (dispatch) => {
   try {
-    console.log("API URL:", process.env.REACT_APP_PROXY);
     const resp = await axios.post(`${API}/`, credentials);
     dispatch(login(resp.data));
   } catch (err) {

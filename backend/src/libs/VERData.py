@@ -12,7 +12,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from concurrent.futures import ThreadPoolExecutor
 from libs.MailKit import json_to_json, csv_to_json, xlsx_to_json, mails_to_json
-from config.envs import EMBED_MODEL, LLM_MODEL
+from config.envs import VEC_MODEL, LLM_MODEL
 
 logging.get_logger("transformers").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore", category=UserWarning, module=r"transformers.*")
@@ -24,7 +24,7 @@ punctuation_list = re.escape(string.punctuation)
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-def init_sentence(embed_model=EMBED_MODEL):
+def init_sentence(embed_model=VEC_MODEL):
     sentence = SentenceTransformer(embed_model, device=device)
     return sentence
 

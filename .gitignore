@@ -11,7 +11,7 @@ backend/src/data/records
 backend/src/data/models
 
 # Environment files
-.env
+**/.env
 
 # testing
 frontend/coverage

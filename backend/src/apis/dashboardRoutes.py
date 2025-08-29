@@ -11,9 +11,9 @@ from libs.MailKit import set_file_with_payload
 dashboard_bp = Blueprint('dashboard_bp', __name__)
 db = get_db()
 
-model_path = "backend/src/data/models/VERModel.pth"
-labels_path = "backend/src/data/models/labels.json"
-recs_path = "backend/src/data/records"
+model_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'models', 'VERModel.pth')
+labels_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'models', 'labels.json')
+recs_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'records')
 
 @dashboard_bp.route('/', methods=["POST"])
 @jwt_required()

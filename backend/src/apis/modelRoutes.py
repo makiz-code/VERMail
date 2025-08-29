@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from config.mongo import get_db
@@ -7,6 +8,8 @@ from libs.VERMod import get_device, init_tokenizer, data_preparation, training_p
 
 model_bp = Blueprint('model_bp', __name__)
 db = get_db()
+
+model_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'models')
 
 @model_bp.route('/dataset/', methods=["GET"])
 @jwt_required()
@@ -114,7 +117,7 @@ def getMetrics():
 @jwt_required()
 @role_required('BusiAdmin')
 def resetModel():
-    result = reset_model("backend/src/data/models")
+    result = reset_model(model_path)
     if result:
         return jsonify({
             'notif': {

@@ -18,9 +18,9 @@ warnings.filterwarnings("ignore", category=FutureWarning, module=r"huggingface_h
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-model_path = "backend/src/data/models/VERModel.pth"
-metrics_path = "backend/src/data/models/metrics.json"
-labels_path = "backend/src/data/models/labels.json"
+model_path   = os.path.join(os.path.dirname(__file__), '..', 'data', 'models', 'VERModel.pth')
+metrics_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'models', 'metrics.json')
+labels_path  = os.path.join(os.path.dirname(__file__), '..', 'data', 'models', 'labels.json')
 
 def init_tokenizer(llm_model=LLM_MODEL):
     return AutoTokenizer.from_pretrained(llm_model)

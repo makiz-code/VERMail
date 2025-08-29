@@ -26,7 +26,7 @@ apiClient.interceptors.request.use((config) => {
 
 export const addAccountAsync = (Account) => async (dispatch) => {
   try {
-    const resp = await apiClient.post('/', Account);
+    const resp = await apiClient.post("/", Account);
     dispatch(addAccount(resp.data));
     await dispatch(getAccountsAsync());
   } catch (err) {
@@ -36,7 +36,7 @@ export const addAccountAsync = (Account) => async (dispatch) => {
 
 export const getAccountsAsync = () => async (dispatch) => {
   try {
-    const resp = await apiClient.get('/');
+    const resp = await apiClient.get("/");
     dispatch(getAccounts(resp.data));
   } catch (err) {
     console.log(err);

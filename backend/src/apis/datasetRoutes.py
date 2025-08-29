@@ -11,7 +11,7 @@ from libs.VERData import data_extraction, data_cleaning, data_labeling, data_red
 dataset_bp = Blueprint('dataset_bp', __name__)
 db = get_db()
 
-upload_path = "backend/src/data/uploads"
+upload_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'uploads')
 
 @dataset_bp.route('/', methods=["POST"])
 @jwt_required()
@@ -87,8 +87,8 @@ def uploadFiles():
                 }
             })
 
-        src_path = "backend/src/data/uploads/mails"
-        dest_path = "backend/src/data/uploads/eml-auto-data.csv"
+        src_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'uploads', 'mails')
+        dest_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'uploads', 'eml-auto-data.csv')
 
         os.makedirs(src_path, exist_ok=True)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)

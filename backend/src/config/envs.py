@@ -1,16 +1,18 @@
 import os
 from dotenv import load_dotenv
-load_dotenv()
 
-MONGO_DB = os.getenv("MONGO_DB")
-MONGO_URI = os.getenv("MONGO_URI")
+if not os.environ.get("MONGO_DB"):
+    load_dotenv()
 
-CORS_ORIGIN = os.getenv('CORS_ORIGIN')
-SECRET_KEY = os.getenv('SECRET_KEY')
+MONGO_DB = os.environ.get("MONGO_DB")
+MONGO_URI = os.environ.get("MONGO_URI")
 
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+FLASK_CORS_ORIGIN = os.environ.get('FLASK_CORS_ORIGIN')
+JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
 
-EMBED_MODEL = os.getenv("EMBED_MODEL")
-LLM_MODEL = os.getenv("LLM_MODEL")
-NER_MODEL = os.getenv("NER_MODEL")
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+
+VEC_MODEL = os.environ.get("VEC_MODEL")
+LLM_MODEL = os.environ.get("LLM_MODEL")
+NER_MODEL = os.environ.get("NER_MODEL")

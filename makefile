@@ -6,13 +6,13 @@ ifeq ($(OS),Windows_NT)
 	python -m venv backend/.venv
 	backend\.venv\Scripts\python.exe -m pip install --upgrade pip
 	backend\.venv\Scripts\python.exe -m pip install --no-cache-dir -r backend/requirements.txt
-	backend\.venv\Scripts\python.exe -c "import os, torch; from dotenv import load_dotenv; from transformers import AutoTokenizer; from sentence_transformers import SentenceTransformer; load_dotenv(); llm_model=os.getenv('LLM_MODEL','bert-base-uncased'); embed_model=os.getenv('EMBED_MODEL','all-MiniLM-L6-v2'); AutoTokenizer.from_pretrained(llm_model); SentenceTransformer(embed_model)"
+	backend\.venv\Scripts\python.exe -c "import os, torch; from dotenv import load_dotenv; from transformers import AutoTokenizer; from sentence_transformers import SentenceTransformer; load_dotenv(); llm_model=os.getenv('LLM_MODEL','bert-base-uncased'); embed_model=os.getenv('VEC_MODEL','all-MiniLM-L6-v2'); AutoTokenizer.from_pretrained(llm_model); SentenceTransformer(embed_model)"
 	cd frontend && npm install && cd ..
 else
 	python3 -m venv backend/.venv
 	backend/.venv/bin/python -m pip install --upgrade pip
 	backend/.venv/bin/python -m pip install --no-cache-dir -r backend/requirements.txt
-	backend/.venv/bin/python -c "import os, torch; from dotenv import load_dotenv; from transformers import AutoTokenizer; from sentence_transformers import SentenceTransformer; load_dotenv(); llm_model=os.getenv('LLM_MODEL','bert-base-uncased'); embed_model=os.getenv('EMBED_MODEL','all-MiniLM-L6-v2'); AutoTokenizer.from_pretrained(llm_model); SentenceTransformer(embed_model)"
+	backend/.venv/bin/python -c "import os, torch; from dotenv import load_dotenv; from transformers import AutoTokenizer; from sentence_transformers import SentenceTransformer; load_dotenv(); llm_model=os.getenv('LLM_MODEL','bert-base-uncased'); embed_model=os.getenv('VEC_MODEL','all-MiniLM-L6-v2'); AutoTokenizer.from_pretrained(llm_model); SentenceTransformer(embed_model)"
 	cd frontend && npm install && cd ..
 endif
 

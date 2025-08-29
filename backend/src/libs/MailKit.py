@@ -27,7 +27,7 @@ pd.set_option('future.no_silent_downcasting', True)
 
 punctuation_list = re.escape(string.punctuation)
 
-recs_path = "backend/src/data/records"
+recs_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'records')
 
 def clean_text(text):
     text = re.sub(r'\s*\n+\s*', '\u7102', text)
