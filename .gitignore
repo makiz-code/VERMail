@@ -1,31 +1,36 @@
+# Python cache
 **/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# dependencies
+# Python virtual environment
+server/.venv
+
+# Node.js dependencies
 client/node_modules/
 client/.pnp
 client/.pnp.js
 
-server/.venv
-server/src/data/uploads
-server/src/data/records
-server/src/data/models
+# React build output
+client/build
 
 # Environment files
 **/.env
-
-# testing
-client/coverage
-
-# production
-client/build
-
-# misc
-client/.DS_Store
 client/.env.local
 client/.env.development.local
 client/.env.test.local
 client/.env.production.local
 
+# Test & coverage
+client/coverage
+
+# Logs & misc
 client/npm-debug.log*
 client/yarn-debug.log*
 client/yarn-error.log*
+client/.DS_Store
+
+# Data (keep only gitkeep)
+server/src/data/*
+!server/src/data/.gitkeep
