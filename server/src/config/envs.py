@@ -8,6 +8,7 @@ MONGO_DB = os.environ.get("MONGO_DB")
 MONGO_URI = os.environ.get("MONGO_URI")
 
 FLASK_CORS_ORIGIN = os.environ.get('FLASK_CORS_ORIGIN')
+FLASK_API_PORT = os.environ.get('FLASK_API_PORT')
 JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
 
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")

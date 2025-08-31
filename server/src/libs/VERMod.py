@@ -178,9 +178,7 @@ def train_epoch(model, loader, optimizer, criterion, device):
 def train_model(model, train_loader, val_loader, optimizer, criterion, num_epochs, device):
     best_metrics = {"loss": float('inf'), "accuracy": 0}
 
-    progress_bar = tqdm(range(num_epochs), desc="Training Progress", unit="epoch", ncols=120, colour='white')
-
-    for _ in range(num_epochs):
+    for epoch in tqdm(range(num_epochs), desc="Training Progress", unit="epoch", ncols=120, colour='white'):
         train_loss, train_acc = train_epoch(model, train_loader, optimizer, criterion, device)
         val_metrics = evaluate(model, val_loader, criterion, device)
 
@@ -190,15 +188,11 @@ def train_model(model, train_loader, val_loader, optimizer, criterion, num_epoch
             with open(metrics_path, "w") as f:
                 json.dump(best_metrics, f)
 
-        progress_bar.update(1)
-        progress_bar.set_postfix({
-            "train_loss": f"{train_loss:.2f}",
-            "train_acc": f"{train_acc:.2f}",
-            "val_loss": f"{val_metrics['loss']:.2f}",
-            "val_acc": f"{val_metrics['accuracy']:.2f}"
-        })
-
-    progress_bar.close()
+        tqdm.write(
+            f"Epoch {epoch+1}/{num_epochs} | "
+            f"train_loss: {train_loss:.2f}, train_acc: {train_acc:.2f} | "
+            f"val_loss: {val_metrics['loss']:.2f}, val_acc: {val_metrics['accuracy']:.2f}"
+        )
 
     return best_metrics
 

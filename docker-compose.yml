@@ -23,8 +23,8 @@ services:
     depends_on:
       - mongodb
     volumes:
-      - ./server/src:/app
-      - ./server/src/data:/app/data
+      - ./server/src:/app/src
+      - ./server/src/data:/app/src/data
     runtime: nvidia
     deploy:
       resources:
