@@ -1,5 +1,5 @@
 {
-  "name": "vermailfs",
+  "name": "vermailfc",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://server:5000",
